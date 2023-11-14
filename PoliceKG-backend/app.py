@@ -23,14 +23,14 @@ def hello():
     time = datetime.date.today()  #普通字符变量
     liebiao = ['111','222','333']  #列表类型
     zidian ={'11':'11','22':'22'}
-    # return 'hellohellohellohellohello'
+    return 'hellohellohellohellohello'
     # return app.send_static_file('index.html')
-    return render_template("inde.html",var = time, list = liebiao, zi = zidian)
+    # return render_template("inde.html",var = time, list = liebiao, zi = zidian)
 
 @app.route('/')
 def get_index():
-    # return 'hello'
-    return app.send_static_file('index.html')
+    return 'hello'
+    # return app.send_static_file('index.html')
 
 
 

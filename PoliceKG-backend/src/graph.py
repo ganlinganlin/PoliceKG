@@ -5,7 +5,6 @@ from neo4j import GraphDatabase, basic_auth
 import json
 import sys
 sys.path.append('D:\Web\PoliceKG')
-import bert.bert as bb
 
 
 
@@ -293,30 +292,6 @@ class GraphDB:
         return res
 
 
-#获取搜索框目录
-    def get_address(self):
-        query_str = "MATCH (n:ADDRESS) RETURN n"
-
-        print(query_str)
-        res = []
-        with self.driver.session() as session:
-            result = session.read_transaction(lambda tx: list(tx.run(query_str)))
-
-        s1 = "我喜欢吃榴莲"
-        s2 = "天津市北辰区周杰伦"
-        similarity = bb.calc_similarity(s1, s2)
-        similarity = str(similarity)
-        #print(f"相似度：{similarity:.4f}")
-        # for item in result:
-        #     obj ={
-        #         "address" : item[3]['name'],
-        #     }
-        #     res.append(obj)
-        obj = {
-                "similarity" : similarity,
-            }
-        res.append(obj)
-        return res
 
 
     def search_conc(self,id):
