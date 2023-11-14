@@ -15,14 +15,19 @@ export default {
   route: {
     path: '/',
     routes: [
-      {
-        path: '/home',
-        name: '主页',
-        icon: <HomeOutlined />,
-      },
+      // {
+      //   path: '/home',
+      //   name: '主页',
+      //   icon: <HomeOutlined />,
+      // },
       {
         path: '/kg',
-        name: '知识图谱',
+        name: '事件类型统计',
+        icon: <DesktopOutlined />,
+      },
+      {
+        path: '/address',
+        name: '地点统计',
         icon: <DesktopOutlined />,
       },
       // {
@@ -40,26 +45,26 @@ export default {
       //     }
       //   ],
       // },
-      {
-        path: '/question',
-        name: '知识问答',
-        icon: <TabletOutlined />,
-        routes: [
-          {
-            path: '/question/user',
-            name: '问答助手',
-          },
-          {
-            path: '/question/teacher',
-            name: '教师解答',
-          }
-        ],
-      },
-      {
-        path: '/statistic',
-        name: '数据总览',
-        icon: <SmileOutlined />,
-      },
+      // {
+      //   path: '/question',
+      //   name: '知识问答',
+      //   icon: <TabletOutlined />,
+      //   routes: [
+      //     {
+      //       path: '/question/user',
+      //       name: '问答助手',
+      //     },
+      //     {
+      //       path: '/question/teacher',
+      //       name: '教师解答',
+      //     }
+      //   ],
+      // },
+      // {
+      //   path: '/statistic',
+      //   name: '数据总览',
+      //   icon: <SmileOutlined />,
+      // },
     ],
   },
   location: {

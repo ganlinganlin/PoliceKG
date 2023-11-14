@@ -1,55 +1,27 @@
 import React, { useState } from 'react';
 import './index.less';
-import { WordCloud } from '@/component/common'
+
+import RcResizeObserver from 'rc-resize-observer';
 import { Space, Button, Input, DatePicker,Table,Select  } from 'antd';
 import ProCard from '@ant-design/pro-card';
 import { ProFormText, ProForm, ModalForm } from '@ant-design/pro-components';
-import {getSearchRes} from '@/server/kg.js'
-import Node from './node_content';
-import KGContent from './kg_content';
+
+import KGAddress from './kg_address';
 import { json } from 'd3';
-import HttpUtils from '@/utils/HttpUtils';
-import ApiUtils from '@/utils/ApiUtils';
+import HttpUtils from '../../utils/HttpUtils';
+import ApiUtils from '../../utils/ApiUtils';
 
 import dayjs from 'dayjs';
 
-class KG extends React.Component {
-    constructor(props) {
+class ADDRESS extends React.Component{
+ constructor(props) {
       super(props);
       console.log('kg');
       this.state = {
         responsive: true,
         options:[],
         filtermsg:[],
-        columns:[
-        {
-            title: '时间',
-            dataIndex: 'time',
-            key: 'time',
-          },
-          {
-            title: '地点',
-            dataIndex: 'address',
-            key: 'address',
-          },
-          {
-            title: '事件类型',
-            dataIndex: 'event',
-            filters: [
-              {
-                text: '行政(治安)警情',
-                value: '行政(治安)警情',
-              },
-            ],
-            onFilter: (value, record) => record.event.startsWith(value),
-            filterSearch: true,
-          },
-          {
-            title: '事件发生次数',
-            dataIndex: 'number',
-            sorter: (a, b) => a.number - b.number,
-          },
-        ],
+
         nodeinfo: {
           id: '',
           label: '',
@@ -83,7 +55,7 @@ class KG extends React.Component {
         tabledata : [],
         status: '',
         flag: false,
-        address : '',
+        number : '',
         time : {
           start_time : '',
           end_time : '',
@@ -92,9 +64,7 @@ class KG extends React.Component {
     }
 
     componentDidMount() {
-      this.getAddressList()
     }
-
 
     onSearch(value) {
       console.log(value);
@@ -123,10 +93,10 @@ class KG extends React.Component {
     // 查询事件
     onCLickButton(){
       console.log("点击查询")
-      // console.log(this.state.address)
+      // console.log(this.state.number)
       // console.log(this.state.time)
       const params =  {
-        "address" : this.state.address[0],
+        "number" : this.state.number,
         "start_time" : this.state.time['start_time'],
         "end_time" : this.state.time['end_time']
       }
@@ -184,9 +154,8 @@ class KG extends React.Component {
               obj.push({
                 key: index,
                 time: item.time,
-                address: item.address,
-                event: item.event,
                 number: item.number,
+                address: item.address,
               })
             })
 
@@ -200,6 +169,12 @@ class KG extends React.Component {
           })
     }
 
+        handleChange(value){
+        this.setState({
+            value,
+            number : value
+        })
+    }
     handleTime( data, dataString){
       // console.log(value)
       let start = ''
@@ -220,67 +195,10 @@ class KG extends React.Component {
       })
     }
 
-    async getAddressList(){
-      // 查询 全部地址
-      HttpUtils.get(ApiUtils.API_WHOLE_ADDRESS)
-        .then((res) => {
-          console.log('返回结果:', res);
-          let addlist = []
-          res.map((item)=>{
-              addlist.push({
-                value: item.n.properties.address,
-                label: item.n.properties.address
-          })
-          })
-            this.setState({
-                options : addlist,
-                filtermsg : addlist,
-            })
-         })
-        .catch((error) => {
-          console.log('error: ' + error.message);
-        });
-    }
-    handleChange(value){
-        this.setState({
-            value,
-            address : value
-        })
-    }
-    handleSearch(value){
-        let filterMsg = [];
-        if(value){
-            let queryStringArr = value.split("");
-            let str = "(.*?)";
-            let regStr = str + queryStringArr.join(str) + str;
-            let reg = RegExp(regStr, "i"); // 以mh为例生成的正则表达式为/(.*?)m(.*?)h(.*?)/i
-            this.state.options.map(item => {
-            if (reg.test(item.value)) {
-                filterMsg.push(item);
-            }});
-            // console.log(filterMsg)
-            this.setState({
-                filtermsg : filterMsg
-            })
-        }
-    }
 
-  render() {
-    // const searchCard = (
-    //   <ProCard>
-    //     <Input.Search
-    //       placeholder="请输入"
-    //       enterButton="搜索"
-    //       size="large"
-    //       // value={searchText}
-    //       // onChange={(e) => {
-    //       //     setSearchText(e.target.value);
-    //       // }}
-    //       onSearch={this.onSearch.bind(this)}
-    //       style={{ maxWidth: 522, width: '100%' }}
-    //     />
-    //   </ProCard>
-    // );
+
+
+    render() {
 
     // 日期选择框
     const { RangePicker } = DatePicker;
@@ -325,155 +243,92 @@ class KG extends React.Component {
       {
         title: '时间',
         dataIndex: 'time',
-        filters: [
-          {
-            text: '2023-08-15',
-            value: '2023-08-15',
-          },
-          {
-            text: '2023-08-16',
-            value: '2023-08-16',
-          },
-          {
-            text: '2023-08-17',
-            value: '2023-08-17',
-          },
-        ],
-        filterMode: 'tree',
-        filterSearch: true,
-        onFilter: (value, record) => record.time.startsWith(value),
-        // width: '20%',
+
       },
-      {
-        title: '地点',
-        dataIndex: 'address',
-        // sorter: (a, b) => a.age - b.age,
-        // width: '20%',
-      },
-      {
-        title: '事件类型',
-        dataIndex: 'event',
-        filters: [
-          {
-            text: '行政(治安)警情',
-            value: '行政(治安)警情',
-          },
-        ],
-        onFilter: (value, record) => record.event.startsWith(value),
-        filterSearch: true,
-      },
-      // istype_small  && {
-      //   title: '事件小类',
-      //   dataIndex: 'event',
-      //   filters: [
-      //     {
-      //       text: '行政(治安)警情',
-      //       value: '行政(治安)警情',
-      //     },
-      //   ],
-      //   onFilter: (value, record) => record.addreventess.startsWith(value),
-      //   filterSearch: true,
-      // },
+
       {
         title: '事件发生次数',
         dataIndex: 'number',
         sorter: (a, b) => a.number - b.number,
         // width: '20%',
       },
-      // {
-      //   filters: [
-      //     {
-      //       text: '事件小类',
-      //       value: istype_small,
-      //     },
-      //   ],
-      //   onFilter: (value, istype_small) => istype_small.startsWith(value),
-      //   filterSearch: true,
-      // }
+        {
+        title: '地点',
+        dataIndex: 'address',
+
+      },
+
+
+
     ].filter(Boolean);
 
-    const data = [
-      {
-        key: '1',
-        time: '2023.08.09',
-        address: '天津市北辰区双口镇双口一村',
-        event: '行政警情',
-        number: 11,
-      },
-      {
-        key: '2',
-        time: '2023.08.09',
-        address: '天津市北辰区双口镇双口二村',
-        event: '行政警情',
-        number: 23,
-      },
-      {
-        key: '3',
-        time: '2023.08.09',
-        address: '天津市北辰区双口镇双口三村',
-        event: '行政警情',
-        number: 43,
-      },
-      {
-        key: '4',
-        time: '2023.08.09',
-        address: '天津市北辰区双口镇双口四村',
-        event: '行政警情',
-        number: 13,
-      },
-    ];
+
     const onChange1 = (pagination, filters, sorter, extra) => {
       console.log('params', pagination, filters, sorter, extra);
     };
 
     return (
-            <div  className="KG_container"
-              // title="事件统计"
-              // split={this.state.responsive ? 'horizontal' : 'vertical'}
-              // bordered
+      <RcResizeObserver
+        key="resize-observer"
+        onResize={(offset) => {
+          this.setState({
+            setResponsive: offset.width < 596,
+          });
+        }}
+      >
+            <ProCard
+              className="KG_container"
+              title="地点统计"
+              split={this.state.responsive ? 'horizontal' : 'vertical'}
+              bordered
             >
+
+                  {/*{searchCard}*/}
                   <ProCard style={{ marginBlockStart: 8 }} gutter={8}>
                     <ProCard bordered colSpan="30%" >
                               <RangePicker  presets={rangePresets} onChange={ (data, dataString)  => this.handleTime( data, dataString)} />
                       </ProCard>
                     <ProCard bordered colSpan="30%"  >
+                        {/*<Input placeholder="请输入至少发生的事件次数n" defaultValue="0" value={this.state.value} onChange={(value)=>this.handleChange(value)} />*/}
                         <Select mode="tags" style={{ width: '100%' }}
-                                showSearch
-                                placeholder="请输入查询地址"
+                                showSearchjiyu
+                                placeholder="请输入至少发生的事件次数n,默认为0"
                                 value={this.state.value}
                                 onChange={(value)=>this.handleChange(value)}
-                                onSearch={(value) => this.handleSearch(value)}
                                 filterOption={false}
                                 defaultActiveFirstOption={false}
                         >
                             {this.state.filtermsg.map(d => <Select.Option key={d.value}>{d.label}</Select.Option>)}
                         </Select>
-                       </ProCard>
+                    </ProCard>
                     <ProCard bordered colSpan="40%"  >
-                      {/*<div>*/}
+                      <div>
                          <Button type="primary" onClick={this.onCLickButton.bind(this)}>
                                 点击查询
                          </Button>
-                      {/*</div>*/}
+                      </div>
 
                     </ProCard>
                   </ProCard>
-                  <ProCard style={{ marginBlockStart: 20 }} gutter={20}  split={'vertical'}>
-                      <ProCard style={{ marginBlockStart: 20 }} gutter={20}   bordered colSpan="30%"   split={'horizontal'}>
-                          {/*<ProCard ><WordCloud/></ProCard>*/}
-                          <ProCard >
-                               <KGContent callback={this.callback} searchnodes={this.state.searchnodes} searchlinks ={this.state.searchlinks}/>
+                  <ProCard style={{ marginBlockStart: 8 }} gutter={8}>
+                          <ProCard bordered colSpan="30%" >
+                            <KGAddress callback={this.callback} searchnodes={this.state.searchnodes} searchlinks ={this.state.searchlinks}/>
                           </ProCard>
-                      </ProCard >
-                      <ProCard bordered style={{ marginBlockStart: 20 }} gutter={20}  >
-                          <Table columns={columns} dataSource={this.state.tabledata} onChange={onChange1} />
-                      </ProCard>
+
+                          <ProCard bordered  >
+                            <Table columns={columns} dataSource={this.state.tabledata} onChange={onChange1} />
+                          </ProCard>
                   </ProCard>
-            </div>
+            </ProCard>
+      </RcResizeObserver>
     );
 
   }
 
 
+
+
+
 }
-export default KG;
+
+export default ADDRESS;
