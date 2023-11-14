@@ -57,6 +57,7 @@ $ yarn start
 ```html
 src
 ├──assets       // 图片等静态资源
+├──component   
 ├──data         // 前端测试用图谱
 ├──layouts      // 界面导航文件       
 ├──pages        // 组件
