@@ -7,7 +7,7 @@ import ApiUtils from '../../utils/ApiUtils';
 import GraphUtils from '../../utils/GraphUtils';
 import './index.less';
 
-class KGContent extends React.Component {
+class KGAddress extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -518,4 +518,4 @@ class KGContent extends React.Component {
   }
 }
 
-export default KGContent;
+export default KGAddress;

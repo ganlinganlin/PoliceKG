@@ -23,6 +23,7 @@ export default class HttpUtils {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+          'Allow-Control-Allow-Origin' : '*'
         },
         body: JSON.stringify(data),
       })

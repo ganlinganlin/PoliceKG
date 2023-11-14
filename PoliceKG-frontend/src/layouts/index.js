@@ -24,7 +24,7 @@ export default (p_props) => {
       <ProLayout
         {...defaultProps}
         // logo={logo}
-        title="学科知识图谱"
+        title="警情预警系统"
         location={{
           pathname, // 选中高亮
         }}
@@ -58,7 +58,7 @@ export default (p_props) => {
               />
               {!(props === null || props === void 0
                 ? void 0
-                : props.collapsed) && '学科知识图谱'}
+                : props.collapsed) && '警情预警系统'}
             </a>
           );
         }}

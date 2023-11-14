@@ -5,6 +5,10 @@ export default class ApiUtils {
   // static API_STAFF_UPDATE = ApiUtils.URL_ROOT + '/updateStaff';
   // static API_STAFF_LIST = ApiUtils.URL_ROOT + '/getStaffList/';
   // static API_STAFF_DELETE = ApiUtils.URL_ROOT + '/deleteStaff/';
+  static API_SEARCH_ADDRESS = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/search_address';
+  static API_SEARCH_ADDRESS_NUMBER = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/search_address_number';
+  static API_SEARCH_EVENT = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/search_event';
+  static API_SEARCH_EVENT_NUMBER = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/search_event_number';
   static API_SEARCH = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/search';
   static API_GRAPH = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/graph';
   static API_SEARCH_CONC = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/searchconc';
@@ -12,6 +16,7 @@ export default class ApiUtils {
   static API_SEARCH_METH = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/searchmeth';
   static API_QUESTION = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/question';
   static API_WHOLE_GRAPH = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/whole';
+  static API_WHOLE_ADDRESS = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/get_address';
   static API_SEARCH_NODE = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/node';
 
   // static API_CHECK_PASSWORD = ApiUtils.URL_ROOT + '/checkPassword';
