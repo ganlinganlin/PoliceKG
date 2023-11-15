@@ -29,9 +29,9 @@ src
 ├──question_solve.py      
 ├──transfer.py      // 匹配关系，生成（实体，关系）对 
 ├──wordlist.json    // 实体列表
+├──records_address.json    // 地址列表
 ├──intention.yaml   // 关系列表
 │   
 static  //  html测试文件
-│   
-
+│
 ```
