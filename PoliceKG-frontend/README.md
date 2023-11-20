@@ -9,7 +9,7 @@ ant-design + ant-design procomponents + antd-charts
 1. 使用less书写样式
 2. 采用es6语法
 
-## 参考文档1
+## 参考文档
 
 [umi](https://v3.umijs.org/zh-CN/docs)
 
