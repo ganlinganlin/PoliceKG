@@ -22,13 +22,18 @@ export default {
       // },
       {
         path: '/kg',
-        name: '事件类型统计',
+        name: '事件统计',
         icon: <DesktopOutlined />,
       },
       {
         path: '/address',
         name: '地点统计',
-        icon: <DesktopOutlined />,
+        icon: <CloudOutlined />,
+      },
+      {
+        path: '/statistic',
+        name: '数据总览',
+        icon: <SmileOutlined />,
       },
       // {
       //   path: '/analyse',
@@ -60,11 +65,7 @@ export default {
       //     }
       //   ],
       // },
-      // {
-      //   path: '/statistic',
-      //   name: '数据总览',
-      //   icon: <SmileOutlined />,
-      // },
+
     ],
   },
   location: {
