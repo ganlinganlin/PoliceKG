@@ -432,9 +432,9 @@ class KG extends React.Component {
               // split={this.state.responsive ? 'horizontal' : 'vertical'}
               // bordered
             >
-                  <ProCard style={{ marginBlockStart: 8 }} gutter={8}>
+                  <ProCard title="事件统计" bordered gutter={8}>
                     <ProCard bordered colSpan="30%" >
-                              <RangePicker  presets={rangePresets} onChange={ (data, dataString)  => this.handleTime( data, dataString)} />
+                        <RangePicker  presets={rangePresets} onChange={ (data, dataString)  => this.handleTime( data, dataString)} />
                       </ProCard>
                     <ProCard bordered colSpan="30%"  >
                         <Select mode="tags" style={{ width: '100%' }}
