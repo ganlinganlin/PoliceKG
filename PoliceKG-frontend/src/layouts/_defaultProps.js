@@ -35,6 +35,11 @@ export default {
         name: '数据总览',
         icon: <SmileOutlined />,
       },
+      {
+        path: '/export',
+        name: '数据导出',
+        icon: <CrownOutlined />,
+      },
       // {
       //   path: '/analyse',
       //   name: '数据分析',
