@@ -3,8 +3,14 @@ import RcResizeObserver from 'rc-resize-observer';
 import ProCard, { StatisticCard } from '@ant-design/pro-card';
 import { Pie,Bar } from '@ant-design/plots';
 import './index.less';
+import mammoth from 'mammoth';
 
-class Statistic extends React.Component {
+import { Packer } from 'docxtemplater';
+import * as fs from 'fs';
+import Docxtemplater from 'docxtemplater';
+
+class Export extends React.Component {
+
   constructor(props) {
     super(props);
     console.log('Statistic');
@@ -13,7 +19,25 @@ class Statistic extends React.Component {
     };
   }
 
-  render() {
+    exportToWord = () => {
+    const { content } = this.props;
+    mammoth.convertToHtml(content)
+      .then((result) => {
+        const blob = new Blob([result.value], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'exported-document.docx';
+        a.click();
+        URL.revokeObjectURL(url);
+      })
+      .catch((error) => {
+        console.error('导出失败', error);
+      });
+  }
+
+
+    render() {
     const imgStyle = {
       display: 'block',
       width: 42,
@@ -226,7 +250,7 @@ class Statistic extends React.Component {
           value: 13,
           type: '治安警情',
         },
-        
+
         {
           year: '天穆所',
           value: 3,
@@ -689,6 +713,34 @@ class Statistic extends React.Component {
     return <Bar {...config} />;
   };
 
+    const ExportWordDocument = () => {
+        const [documentContent, setDocumentContent] = useState('Hello, World!');
+
+        const exportToWord = () => {
+        // Load the template content
+        const templateContent = fs.readFileSync('path/to/your/template.docx', 'binary');
+        const template = new Docxtemplater();
+        template.load(templateContent);
+
+        // Set the data for the template
+        const data = {
+          content: documentContent,
+        };
+
+        // Bind the data to the template
+        template.setData(data);
+
+        // Render the template (replace variables with data)
+        template.render();
+
+        // Get the output as a buffer
+        const buffer = template.getZip().generate({ type: 'nodebuffer' });
+
+        // Save the buffer to a Word document
+        fs.writeFileSync('path/to/exported/document.docx', buffer);
+      };
+    };
+
     return (
       <RcResizeObserver
         key="resize-observer"
@@ -698,6 +750,19 @@ class Statistic extends React.Component {
         //   });
         // }}
       >
+        <div>
+            <h1>导出至Word文档示例</h1>
+            <p>这是一个简单的示例，演示如何在React中生成并导出Word文档。</p>
+            <button onClick={this.exportToWord}>导出至Word</button>
+            <textarea
+                value={documentContent}
+                onChange={(e) => setDocumentContent(e.target.value)}
+                rows={10}
+                cols={30}
+            />
+            <button onClick={exportToWord}>Export to Word</button>
+        </div>
+
         <ProCard
           className="content"
           split={this.state.responsive ? 'horizontal' : 'vertical'}
@@ -762,72 +827,6 @@ class Statistic extends React.Component {
               </StatisticCard.Group>
             </ProCard>
 
-            {/*<ProCard className="statisticCard" ghost>*/}
-            {/*  <StatisticCard.Group*/}
-            {/*    colSpan="30%"*/}
-            {/*    gutter={8}*/}
-            {/*    ghost*/}
-            {/*    direction={this.state.responsive ? 'row' : 'column'}*/}
-            {/*  >*/}
-            {/*    <StatisticCard*/}
-            {/*      hoverable*/}
-            {/*      statistic={{*/}
-            {/*        title: '课程实体',*/}
-            {/*        value: '20',*/}
-            {/*        icon: (*/}
-            {/*          <img*/}
-            {/*            style={imgStyle}*/}
-            {/*            src="https://gw.alipayobjects.com/mdn/rms_7bc6d8/afts/img/A*FPlYQoTNlBEAAAAAAAAAAABkARQnAQ"*/}
-            {/*            alt="icon"*/}
-            {/*          />*/}
-            {/*        ),*/}
-            {/*      }}*/}
-            {/*    />*/}
-
-            {/*    <StatisticCard*/}
-            {/*      hoverable*/}
-            {/*      statistic={{*/}
-            {/*        title: '概念实体',*/}
-            {/*        value: '326',*/}
-            {/*        icon: (*/}
-            {/*          <img*/}
-            {/*            style={imgStyle}*/}
-            {/*            src="https://gw.alipayobjects.com/mdn/rms_7bc6d8/afts/img/A*FPlYQoTNlBEAAAAAAAAAAABkARQnAQ"*/}
-            {/*            alt="icon"*/}
-            {/*          />*/}
-            {/*        ),*/}
-            {/*      }}*/}
-            {/*    />*/}
-            {/*    <StatisticCard*/}
-            {/*      hoverable*/}
-            {/*      statistic={{*/}
-            {/*        title: '操作实体',*/}
-            {/*        value: '1247',*/}
-            {/*        icon: (*/}
-            {/*          <img*/}
-            {/*            style={imgStyle}*/}
-            {/*            src="https://gw.alipayobjects.com/mdn/rms_7bc6d8/afts/img/A*FPlYQoTNlBEAAAAAAAAAAABkARQnAQ"*/}
-            {/*            alt="icon"*/}
-            {/*          />*/}
-            {/*        ),*/}
-            {/*      }}*/}
-            {/*    />*/}
-            {/*    <StatisticCard*/}
-            {/*      hoverable*/}
-            {/*      statistic={{*/}
-            {/*        title: '方法实体',*/}
-            {/*        value: '2758',*/}
-            {/*        icon: (*/}
-            {/*          <img*/}
-            {/*            style={imgStyle}*/}
-            {/*            src="https://gw.alipayobjects.com/mdn/rms_7bc6d8/afts/img/A*FPlYQoTNlBEAAAAAAAAAAABkARQnAQ"*/}
-            {/*            alt="icon"*/}
-            {/*          />*/}
-            {/*        ),*/}
-            {/*      }}*/}
-            {/*    />*/}
-            {/*  </StatisticCard.Group>*/}
-            {/*</ProCard>*/}
           </ProCard>
           <ProCard className="statistic" gutter={8} ghost>
               <ProCard
@@ -842,19 +841,15 @@ class Statistic extends React.Component {
                   <DemoPie />
               </ProCard>
           </ProCard>
-          <ProCard className="statistic" gutter={8} ghost>
-              <ProCard layout="center" title="本时段各单位110接报警情一览表（2023年10月26日至11月1日）">
-                  <DemoBar />
-              </ProCard>
-              <ProCard layout="center" title="2023年以来各单位110接报警情一览表（2023年1月1日至11月1日）">
-                  <DemoBar1 />
-              </ProCard>
-          </ProCard>
+
 
 
         </ProCard>
       </RcResizeObserver>
     );
   }
+
 }
-export default Statistic;
+
+
+export default Export;
