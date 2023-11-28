@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import RcResizeObserver from 'rc-resize-observer';
 import ProCard, { StatisticCard } from '@ant-design/pro-card';
+import { Space, Button, Input, DatePicker,Table,Select  } from 'antd';
 import { Pie,Bar } from '@ant-design/plots';
 import './index.less';
 import mammoth from 'mammoth';
@@ -19,6 +20,28 @@ class Export extends React.Component {
     };
   }
 
+// 导出Word文档的方法
+      exportEmptyWordDocument = () => {
+        const content = '<w:p><w:r><w:t>1231231321</w:t></w:r></w:p>'; // <w:p>为段落,<w:r>为运行元素的xml格式,<w:t>为文本元素
+
+        const header = `<?xml version="1.0" encoding="UTF-8"?>
+            <w:wordDocument xmlns:w="urn:schemas-microsoft-com:office:word">
+                <w:body>
+                    ${content}
+                </w:body>
+            </w:wordDocument>`;
+
+        const blob = new Blob([header], { type: 'application/msword' });
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = '警情.doc';
+        link.textContent = '点击下载警情.doc';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+
     exportToWord = () => {
     const { content } = this.props;
     mammoth.convertToHtml(content)
@@ -35,7 +58,6 @@ class Export extends React.Component {
         console.error('导出失败', error);
       });
   }
-
 
     render() {
     const imgStyle = {
@@ -110,7 +132,10 @@ class Export extends React.Component {
   };
       return <Pie {...config} />;
     };
-
+    // const echart=DemoPie.getDataURL({
+    //   RixelRatio:2,
+    //   backgroundColor:'#fff',
+    // });
     const DemoBar = () => {
       const data = [
         {
@@ -750,18 +775,21 @@ class Export extends React.Component {
         //   });
         // }}
       >
-        <div>
-            <h1>导出至Word文档示例</h1>
-            <p>这是一个简单的示例，演示如何在React中生成并导出Word文档。</p>
-            <button onClick={this.exportToWord}>导出至Word</button>
-            <textarea
-                value={documentContent}
-                onChange={(e) => setDocumentContent(e.target.value)}
-                rows={10}
-                cols={30}
-            />
-            <button onClick={exportToWord}>Export to Word</button>
-        </div>
+      <Button type="primary"  onClick={this.exportEmptyWordDocument}>
+	    导出
+      </Button>
+        {/*<div>*/}
+        {/*    <h1>导出至Word文档示例</h1>*/}
+        {/*    <p>这是一个简单的示例，演示如何在React中生成并导出Word文档。</p>*/}
+        {/*    <button onClick={this.exportToWord}>导出至Word</button>*/}
+        {/*    <textarea*/}
+        {/*        value={documentContent}*/}
+        {/*        onChange={(e) => setDocumentContent(e.target.value)}*/}
+        {/*        rows={10}*/}
+        {/*        cols={30}*/}
+        {/*    />*/}
+        {/*    <button onClick={exportToWord}>Export to Word</button>*/}
+        {/*</div>*/}
 
         <ProCard
           className="content"
@@ -848,6 +876,7 @@ class Export extends React.Component {
       </RcResizeObserver>
     );
   }
+
 
 }
 
