@@ -9,6 +9,10 @@ import mammoth from 'mammoth';
 import { Packer } from 'docxtemplater';
 import * as fs from 'fs';
 import Docxtemplater from 'docxtemplater';
+import KGContent from "../kg/kg_content";
+import dayjs from "dayjs";
+import HttpUtils from '@/utils/HttpUtils';
+import ApiUtils from '@/utils/ApiUtils';
 
 class Export extends React.Component {
 
@@ -17,30 +21,115 @@ class Export extends React.Component {
     console.log('Statistic');
     this.state = {
       responsive: true,
+      count_events_weeks: '',
+      count_events_day: '',
+      time : {
+        start_time : '',
+        end_time : '',
+      },
     };
   }
 
+
+
+
+
 // 导出Word文档的方法
       exportEmptyWordDocument = () => {
-        const content = '<w:p><w:r><w:t>1231231321</w:t></w:r></w:p>'; // <w:p>为段落,<w:r>为运行元素的xml格式,<w:t>为文本元素
+        console.log("点击导出")
+        const params =  {
+        "start_time" : this.state.time['start_time'],
+        "end_time" : this.state.time['end_time']
+        }
+        console.log(params)
 
-        const header = `<?xml version="1.0" encoding="UTF-8"?>
-            <w:wordDocument xmlns:w="urn:schemas-microsoft-com:office:word">
-                <w:body>
-                    ${content}
-                </w:body>
-            </w:wordDocument>`;
+      // HttpUtils.post(ApiUtils.API_GET_COUNT_EVENTS, params)
+      //   .then((res) => {
+      //     console.log('返回结果:', res);
+      //     this.setState({
+      //       count_events_weeks: res.count_events_weeks,
+      //       count_events_day: res.count_events_day,
+      //     });
+      //     console.log(this.state.count_events_weeks)
+      //     console.log(this.state.count_events_day)
+      //   })
+      //   .catch((error) => {
+      //     console.log('error: ' + error.message);
+      //   });
 
-        const blob = new Blob([header], { type: 'application/msword' });
+      HttpUtils.post(ApiUtils.API_GET_COUNT_EVENTS,params)
+          .then((res)=>{
+            console.log(res)
+            // let obj = []
+            // res.map(( item, index)=>{
+            //   obj.push({
 
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = '警情.doc';
-        link.textContent = '点击下载警情.doc';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+            const{count_events_weeks,count_events_day}=res[0];
+
+
+            //   })
+            // })
+
+            this.setState({
+              count_events_weeks : count_events_weeks,
+              count_events_day : count_events_day
+            },
+    () => {
+              console.log('count1',count_events_weeks);
+              console.log('count2',count_events_day);
+              const content = '<w:t>每周警情通报</w:t>' +
+                        '<w:r>（2023年第36期'+this.state.time['start_time']+'-'+this.state.time['end_time']+'</w:r>' +
+                        '<w:r>指挥室指挥调度科-'+this.state.time['end_time']+'</w:r>' +
+                        '<w:r>本周警情综述</w:r>' +
+                        '本时段，分局110共接警' + this.state.count_events_weeks + '起，日均'+ this.state.count_events_day + '起.'; // <w:p>为段落,<w:r>为运行元素的xml格式,<w:t>为文本元素
+
+              const header = `<?xml version="1.0" encoding="UTF-8"?>
+                    <w:wordDocument xmlns:w="urn:schemas-microsoft-com:office:word">
+                        <w:body>
+                            ${content}
+                        </w:body>
+                    </w:wordDocument>`;
+
+                const blob = new Blob([header], { type: 'application/msword' });
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = '警情.doc';
+                link.textContent = '点击下载警情.doc';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            )
+
+        })
+          .catch((error)=>{
+            console.log('error: ' + error.message);
+          })
+
+
       };
+
+      handleTime( data, dataString)
+        {
+          // console.log(value)
+          let start = ''
+          let end = ''
+          if (data) {
+            start = dataString[0]
+            end = dataString[1]
+          } else {
+            console.log('Clear');
+            start = ''
+            end = ''
+          }
+          this.setState({
+            time: {
+              start_time: start,
+              end_time: end,
+            }
+          })
+        }
 
     exportToWord = () => {
     const { content } = this.props;
@@ -51,7 +140,8 @@ class Export extends React.Component {
         const a = document.createElement('a');
         a.href = url;
         a.download = 'exported-document.docx';
-        a.click();
+        a.click()
+
         URL.revokeObjectURL(url);
       })
       .catch((error) => {
@@ -59,12 +149,71 @@ class Export extends React.Component {
       });
   }
 
+      handleSearch(value){
+        let filterMsg = [];
+        if(value){
+            let queryStringArr = value.split("");
+            let str = "(.*?)";
+            let regStr = str + queryStringArr.join(str) + str;
+            let reg = RegExp(regStr, "i"); // 以mh为例生成的正则表达式为/(.*?)m(.*?)h(.*?)/i
+            this.state.options.map(item => {
+            if (reg.test(item.value)) {
+                filterMsg.push(item);
+            }});
+            // console.log(filterMsg)
+            this.setState({
+                filtermsg : filterMsg
+            })
+        }
+    }
+
+
     render() {
     const imgStyle = {
       display: 'block',
       width: 42,
       height: 42,
     };
+
+
+    // 日期选择框
+    const { RangePicker } = DatePicker;
+    const onChange = (date) => {
+      if (date) {
+        console.log('Date: ', date);
+      } else {
+        console.log('Clear');
+      }
+    };
+    const onRangeChange = (dates, dateStrings) => {
+      if (dates) {
+        console.log('From: ', dates[0], ', to: ', dates[1]);
+        console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
+
+      } else {
+        console.log('Clear');
+      }
+    };
+    const rangePresets = [
+      {
+        label: 'Last 7 Days',
+        value: [dayjs().add(-7, 'd'), dayjs()],
+      },
+      {
+        label: 'Last 14 Days',
+        value: [dayjs().add(-14, 'd'), dayjs()],
+      },
+      {
+        label: 'Last 30 Days',
+        value: [dayjs().add(-30, 'd'), dayjs()],
+      },
+      {
+        label: 'Last 90 Days',
+        value: [dayjs().add(-90, 'd'), dayjs()],
+      },
+    ];
+    let istype_small = false
+
 
     const DemoPie = () => {
       const data = [
@@ -775,9 +924,25 @@ class Export extends React.Component {
         //   });
         // }}
       >
-      <Button type="primary"  onClick={this.exportEmptyWordDocument}>
-	    导出
-      </Button>
+        <div  className="KG_container"
+              // title="事件统计"
+              // split={this.state.responsive ? 'horizontal' : 'vertical'}
+              // bordered
+            >
+                  <ProCard title="事件统计" bordered gutter={8}>
+                    <ProCard bordered colSpan="30%" >
+                        <RangePicker  presets={rangePresets} onChange={ (data, dataString)  => this.handleTime( data, dataString)} />
+                      </ProCard>
+                    <ProCard bordered colSpan="40%"  >
+                      <Button
+                          type="primary"
+                          onClick={this.exportEmptyWordDocument}>
+	                     导出
+                      </Button>
+                    </ProCard>
+                  </ProCard>
+            </div>
+
         {/*<div>*/}
         {/*    <h1>导出至Word文档示例</h1>*/}
         {/*    <p>这是一个简单的示例，演示如何在React中生成并导出Word文档。</p>*/}
@@ -791,88 +956,88 @@ class Export extends React.Component {
         {/*    <button onClick={exportToWord}>Export to Word</button>*/}
         {/*</div>*/}
 
-        <ProCard
-          className="content"
-          split={this.state.responsive ? 'horizontal' : 'vertical'}
-          gutter={[16, { xs: 8, sm: 16, md: 24, lg: 32 }]}
-          ghost
-        >
-          <ProCard
-            split={this.state.responsive ? 'horizontal' : 'vertical'}
-            gutter={[16, { xs: 8, sm: 16, md: 24, lg: 32 }]}
-            ghost
-          >
-            <ProCard className="statisticCard" ghost>
-              <StatisticCard.Group
-                colSpan="30%"
-                gutter={8}
-                ghost
-                direction={this.state.responsive ? 'row' : 'column'}
-              >
-                <StatisticCard
-                  hoverable
-                  statistic={{
-                    title: '实体总数',
-                    value: '4351',
-                    icon: (
-                      <img
-                        style={imgStyle}
-                        src="https://gw.alipayobjects.com/mdn/rms_7bc6d8/afts/img/A*-jVKQJgA1UgAAAAAAAAAAABkARQnAQ"
-                        alt="icon"
-                      />
-                    ),
-                  }}
-                />
-                <StatisticCard
-                  hoverable
-                  statistic={{
-                    title: '关系总数',
-                    value: '1630',
-                    icon: (
-                      <img
-                        style={imgStyle}
-                        src="https://gw.alipayobjects.com/mdn/rms_7bc6d8/afts/img/A*-jVKQJgA1UgAAAAAAAAAAABkARQnAQ"
-                        alt="icon"
-                      />
-                    ),
-                  }}
-                />
+        {/*<ProCard*/}
+        {/*  className="content"*/}
+        {/*  split={this.state.responsive ? 'horizontal' : 'vertical'}*/}
+        {/*  gutter={[16, { xs: 8, sm: 16, md: 24, lg: 32 }]}*/}
+        {/*  ghost*/}
+        {/*>*/}
+        {/*  <ProCard*/}
+        {/*    split={this.state.responsive ? 'horizontal' : 'vertical'}*/}
+        {/*    gutter={[16, { xs: 8, sm: 16, md: 24, lg: 32 }]}*/}
+        {/*    ghost*/}
+        {/*  >*/}
+        {/*    <ProCard className="statisticCard" ghost>*/}
+        {/*      <StatisticCard.Group*/}
+        {/*        colSpan="30%"*/}
+        {/*        gutter={8}*/}
+        {/*        ghost*/}
+        {/*        direction={this.state.responsive ? 'row' : 'column'}*/}
+        {/*      >*/}
+        {/*        <StatisticCard*/}
+        {/*          hoverable*/}
+        {/*          statistic={{*/}
+        {/*            title: '实体总数',*/}
+        {/*            value: '4351',*/}
+        {/*            icon: (*/}
+        {/*              <img*/}
+        {/*                style={imgStyle}*/}
+        {/*                src="https://gw.alipayobjects.com/mdn/rms_7bc6d8/afts/img/A*-jVKQJgA1UgAAAAAAAAAAABkARQnAQ"*/}
+        {/*                alt="icon"*/}
+        {/*              />*/}
+        {/*            ),*/}
+        {/*          }}*/}
+        {/*        />*/}
+        {/*        <StatisticCard*/}
+        {/*          hoverable*/}
+        {/*          statistic={{*/}
+        {/*            title: '关系总数',*/}
+        {/*            value: '1630',*/}
+        {/*            icon: (*/}
+        {/*              <img*/}
+        {/*                style={imgStyle}*/}
+        {/*                src="https://gw.alipayobjects.com/mdn/rms_7bc6d8/afts/img/A*-jVKQJgA1UgAAAAAAAAAAABkARQnAQ"*/}
+        {/*                alt="icon"*/}
+        {/*              />*/}
+        {/*            ),*/}
+        {/*          }}*/}
+        {/*        />*/}
 
-                <StatisticCard
-                  hoverable
-                  statistic={{
-                    title: '属性总数',
-                    value: '5032',
-                    icon: (
-                      <img
-                        style={imgStyle}
-                        src="https://gw.alipayobjects.com/mdn/rms_7bc6d8/afts/img/A*-jVKQJgA1UgAAAAAAAAAAABkARQnAQ"
-                        alt="icon"
-                      />
-                    ),
-                  }}
-                />
-              </StatisticCard.Group>
-            </ProCard>
+        {/*        <StatisticCard*/}
+        {/*          hoverable*/}
+        {/*          statistic={{*/}
+        {/*            title: '属性总数',*/}
+        {/*            value: '5032',*/}
+        {/*            icon: (*/}
+        {/*              <img*/}
+        {/*                style={imgStyle}*/}
+        {/*                src="https://gw.alipayobjects.com/mdn/rms_7bc6d8/afts/img/A*-jVKQJgA1UgAAAAAAAAAAABkARQnAQ"*/}
+        {/*                alt="icon"*/}
+        {/*              />*/}
+        {/*            ),*/}
+        {/*          }}*/}
+        {/*        />*/}
+        {/*      </StatisticCard.Group>*/}
+        {/*    </ProCard>*/}
 
-          </ProCard>
-          <ProCard className="statistic" gutter={8} ghost>
-              <ProCard
-                    colSpan="50%"
-                    layout="center"
-                    title="本周警情综述"
-                    // split={this.state.responsive ? 'horizontal' : 'vertical'}
-                  >
-                      <DemoBar2 />
-              </ProCard>
-              <ProCard layout="center" title="全局有效警情分类情况">
-                  <DemoPie />
-              </ProCard>
-          </ProCard>
+        {/*  </ProCard>*/}
+        {/*  <ProCard className="statistic" gutter={8} ghost>*/}
+        {/*      <ProCard*/}
+        {/*            colSpan="50%"*/}
+        {/*            layout="center"*/}
+        {/*            title="本周警情综述"*/}
+        {/*            // split={this.state.responsive ? 'horizontal' : 'vertical'}*/}
+        {/*          >*/}
+        {/*              <DemoBar2 />*/}
+        {/*      </ProCard>*/}
+        {/*      <ProCard layout="center" title="全局有效警情分类情况">*/}
+        {/*          <DemoPie />*/}
+        {/*      </ProCard>*/}
+        {/*  </ProCard>*/}
 
 
 
-        </ProCard>
+        {/*</ProCard>*/}
       </RcResizeObserver>
     );
   }
