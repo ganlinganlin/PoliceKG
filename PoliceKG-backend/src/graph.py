@@ -236,6 +236,27 @@ class GraphDB:
 
         return res
 
+
+    def get_count_events(self,data):
+        query_str = "match data=(t:TIME)-[r1:`事件时间`]->(event)-[r2:`事件地点`]->(a:ADDRESS) where '%s' <= t.time <= '%s' RETURN COUNT(event) AS count_events;" % (data['start_time'], data['end_time'])
+
+        print(query_str)
+        print(data)
+        res = []
+        with self.driver.session() as session:
+            result = session.read_transaction(lambda tx: list(tx.run(query_str)))
+        print(result)
+        for item in result:
+            print(item)
+            obj = {
+                "count_events_weeks": item[0],
+                "count_events_day": item[0]//7,
+            }
+            res.append(obj)
+
+        return res
+
+
     def search_address(self, data):
         #match data = (t:TIME)-[r1:`事件时间`]->(e)-[r2: `事件地点`]->(a:ADDRESS) WHERE "%s" <= t.time <= "%s" WITH a, count(e) AS events WHERE events >= %s RETURN a as p
         query_str = "match data = (t:TIME)-[r1:`事件时间`]->(e)-[r2: `事件地点`]->(a:ADDRESS) WHERE '%s' <= t.time <= '%s' WITH a, count(e) AS events WHERE events >= %s RETURN a as p"%(data['start_time'],data['end_time'],data['number'])
@@ -249,6 +270,7 @@ class GraphDB:
             print(path)
             for item in path:
                 print(item[1])
+
 
 
         return nodes
