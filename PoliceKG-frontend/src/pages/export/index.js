@@ -32,8 +32,6 @@ class Export extends React.Component {
 
 
 
-
-
 // 导出Word文档的方法
       exportEmptyWordDocument = () => {
         console.log("点击导出")
@@ -106,7 +104,6 @@ class Export extends React.Component {
           .catch((error)=>{
             console.log('error: ' + error.message);
           })
-
 
       };
 
