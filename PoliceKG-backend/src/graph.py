@@ -284,6 +284,8 @@ class GraphDB:
         return res
 
 
+
+    #word文档导出
     def get_count_events(self,data):
         start_time = data['start_time']
         end_time = data['end_time']
@@ -385,6 +387,7 @@ class GraphDB:
             res.append(obj)
         return res
 
+    # 本周警情综述
     def get_count_events_figure(self,data):
         start_time = data['start_time']
         end_time = data['end_time']
@@ -504,6 +507,27 @@ class GraphDB:
         return res
 
 
+
+    # 全局有效警情分类情况
+    def get_count_events_sort(self,data):
+        start_time = data['start_time']
+        end_time = data['end_time']
+
+        res = []
+
+        query_str = "match data=(t:TIME)-[r1:`事件时间`]->(event)-[r2:`事件地点`]->(a:ADDRESS) where '%s' <= t.time <= '%s' with event,t,a match (event)-[r3]->(ac:Alarm_Category) RETURN ac.category AS ac_category, COUNT(*) AS event_count ORDER BY event_count DESC;" %(start_time, end_time)
+        print(query_str)
+        with self.driver.session() as session:
+            result = session.read_transaction(lambda tx: list(tx.run(query_str)))
+        # print(result)
+        for item in result:
+            # print(item)
+            obj = {
+                "type": item[0],
+                'value':item[1],
+            }
+            res.append(obj)
+        return res
 
 
 
