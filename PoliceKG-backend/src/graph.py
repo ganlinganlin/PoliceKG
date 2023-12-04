@@ -5,9 +5,56 @@ from neo4j import GraphDatabase, basic_auth
 import json
 import sys
 sys.path.append('D:\Web\PoliceKG')
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 
 
+def get_one_week_ago(input_time_str):
+    # 将字符串表示的时间转换为 datetime 对象
+    input_time = datetime.strptime(input_time_str, '%Y-%m-%d')
+
+    # 计算一周前的时间
+    one_week_ago = input_time - timedelta(weeks=1)
+    # 将结果格式化为字符串
+    one_week_ago_str = one_week_ago.strftime('%Y-%m-%d')
+
+    return one_week_ago_str
+
+
+def get_one_year_ago(input_time_str):
+    # 将字符串表示的时间转换为 datetime 对象
+    input_time = datetime.strptime(input_time_str, '%Y-%m-%d')
+
+    # 计算一年前的时间
+    one_year_ago = input_time - relativedelta(years=1)
+    # 将结果格式化为字符串
+    one_year_ago_str = one_year_ago.strftime('%Y-%m-%d')
+
+    return one_year_ago_str
+
+def calculate_days_difference(time_str1, time_str2):
+    # 将字符串表示的时间转换为 datetime 对象
+    time1 = datetime.strptime(time_str1, '%Y-%m-%d')
+    time2 = datetime.strptime(time_str2, '%Y-%m-%d')
+
+    # 计算时间差
+    time_difference = abs(time1 - time2)
+
+    # 获取天数部分
+    days_difference = time_difference.days
+
+    return days_difference + 1
+
+
+def calculate_yoy_growth_rate(current_year_value, last_year_value):
+    try:
+        # 计算同比增长率
+        yoy_growth_rate = ((current_year_value - last_year_value) / abs(last_year_value)) * 100
+        return yoy_growth_rate
+    except ZeroDivisionError:
+        # 处理除零错误（如果去年值为零）
+        return float('inf')
 
 
 class GraphDB:
@@ -241,20 +288,108 @@ class GraphDB:
         query_str = "match data=(t:TIME)-[r1:`事件时间`]->(event)-[r2:`事件地点`]->(a:ADDRESS) where '%s' <= t.time <= '%s' RETURN COUNT(event) AS count_events;" % (data['start_time'], data['end_time'])
 
         print(query_str)
-        print(data)
+        print(data['start_time'])
+        days_numbers = calculate_days_difference(data['start_time'], data['end_time'])
+        print("days_numbers:",days_numbers)
+
+        one_week_ago_start_time = get_one_week_ago(data['start_time'])
+        one_week_ago_end_time = get_one_week_ago(data['end_time'])
+        one_year_ago_start_time = get_one_year_ago(data['start_time'])
+        one_year_ago_end_time = get_one_year_ago(data['end_time'])
+        days_numbers1 = calculate_days_difference(one_week_ago_start_time, one_week_ago_end_time)
+        print("days_numbers1:", days_numbers1)
+        days_numbers2 = calculate_days_difference(one_year_ago_start_time, one_year_ago_end_time)
+        print("days_numbers2:", days_numbers2)
+
+        one_week_ago_query_str = "match data=(t:TIME)-[r1:`事件时间`]->(event)-[r2:`事件地点`]->(a:ADDRESS) where '%s' <= t.time <= '%s' RETURN COUNT(event) AS count_events;" % (one_week_ago_start_time, one_week_ago_end_time)
+        one_year_ago_query_str = "match data=(t:TIME)-[r1:`事件时间`]->(event)-[r2:`事件地点`]->(a:ADDRESS) where '%s' <= t.time <= '%s' RETURN COUNT(event) AS count_events;" % (one_year_ago_start_time, one_year_ago_end_time)
+
         res = []
         with self.driver.session() as session:
             result = session.read_transaction(lambda tx: list(tx.run(query_str)))
-        print(result)
+            one_week_ago_result = session.read_transaction(lambda tx: list(tx.run(one_week_ago_query_str)))
+            one_year_ago_result = session.read_transaction(lambda tx: list(tx.run(one_year_ago_query_str)))
+        print("result:",result)
+        print('one_week_ago_result:',one_week_ago_result)
+        print('one_year_ago_result:',one_year_ago_result)
         for item in result:
             print(item)
             obj = {
                 "count_events_weeks": item[0],
-                "count_events_day": item[0]//7,
+                "days_numbers": days_numbers,
+                "count_events_day": item[0]//days_numbers,
             }
             res.append(obj)
+        for item in one_week_ago_result:
+            print(item)
+            obj1 = {
+                "count_events_weeks1": item[0],
+                "days_numbers1": days_numbers1,
+                "count_events_day1": item[0]//days_numbers1,
+            }
+            # res.append(obj1)
 
+        for item in one_year_ago_result:
+            print(item)
+            obj2 = {
+                "count_events_weeks2": item[0],
+                "days_numbers2": days_numbers2,
+                "count_events_day2": item[0]//days_numbers1,
+            }
+            # res.append(obj2)
+        huanbi_rate = calculate_yoy_growth_rate(obj["count_events_weeks"], obj1["count_events_weeks1"])
+        if huanbi_rate == float('inf'):
+            print("去年值为零，无法计算同比增长率。")
+            huanbi = {
+                'huanbi_change': "去年值为零，无法计算同比增长率。",
+                'huanbi_rate': -1
+
+            }
+        else:
+            print("环比增长率为： {:.2f}%".format(huanbi_rate))
+            print("环比增长率为： {:.2f}%",huanbi_rate)
+            if huanbi_rate >= 0 :
+                huanbi = {
+                    'huanbi_change':'上升',
+                    'huanbi_rate': "{:.2f}%".format(abs(huanbi_rate))
+
+                }
+            else:
+                huanbi = {
+                    'huanbi_change': '下降',
+                    'huanbi_rate': "{:.2f}%".format(abs(huanbi_rate))
+
+                }
+        res.append(huanbi)
+
+        tongbi_rate = calculate_yoy_growth_rate(obj["count_events_weeks"], obj2["count_events_weeks2"])
+        if tongbi_rate == float('inf'):
+            print("去年值为零，无法计算同比增长率。")
+            tongbi = {
+                'tongbi_change': "去年值为零，无法计算同比增长率。",
+                'tongbi_rate': -1
+
+            }
+        else:
+            print("环比增长率为： {:.2f}%".format(tongbi_rate))
+            if tongbi_rate >= 0 :
+                tongbi = {
+                    'tongbi_change':'上升',
+                    'tongbi_rate': "{:.2f}%".format(abs(tongbi_rate))
+
+                }
+            else:
+                tongbi = {
+                    'tongbi_change': '下降',
+                    'tongbi_rate': "{:.2f}%".format(abs(tongbi_rate))
+
+                }
+        print('count_events_weeks:', obj["count_events_weeks"])
+        res.append(tongbi)
         return res
+
+
+
 
 
     def search_address(self, data):
