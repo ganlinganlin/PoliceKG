@@ -76,10 +76,10 @@ class Export extends React.Component {
               console.log('count1',count_events_weeks);
               console.log('count2',count_events_day);
               const content = '<w:t>每周警情通报</w:t>' +
-                        '<w:r>（2023年第36期'+this.state.time['start_time']+'-'+this.state.time['end_time']+'</w:r>' +
-                        '<w:r>指挥室指挥调度科-'+this.state.time['end_time']+'</w:r>' +
+                        '<w:r>（2023年第36期'+this.state.time['start_time']+'至'+this.state.time['end_time']+'）</w:r>' +
+                        '<w:r>指挥室指挥调度科---'+this.state.time['end_time']+'</w:r>' +
                         '<w:r>本周警情综述</w:r>' +
-                        '本时段，分局110共接警' + this.state.count_events_weeks + '起，日均'+ this.state.count_events_day + '起.'; // <w:p>为段落,<w:r>为运行元素的xml格式,<w:t>为文本元素
+                        '本时段，分局110共接警' + this.state.count_events_weeks + '起，日均'+ this.state.count_events_day + '起。'; // <w:p>为段落,<w:r>为运行元素的xml格式,<w:t>为文本元素
 
               const header = `<?xml version="1.0" encoding="UTF-8"?>
                     <w:wordDocument xmlns:w="urn:schemas-microsoft-com:office:word">
