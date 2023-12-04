@@ -285,108 +285,108 @@ class GraphDB:
 
 
     def get_count_events(self,data):
-        query_str = "match data=(t:TIME)-[r1:`事件时间`]->(event)-[r2:`事件地点`]->(a:ADDRESS) where '%s' <= t.time <= '%s' RETURN COUNT(event) AS count_events;" % (data['start_time'], data['end_time'])
-
-        print(query_str)
-        print(data['start_time'])
-        days_numbers = calculate_days_difference(data['start_time'], data['end_time'])
-        print("days_numbers:",days_numbers)
-
+        start_time = data['start_time']
+        end_time = data['end_time']
         one_week_ago_start_time = get_one_week_ago(data['start_time'])
         one_week_ago_end_time = get_one_week_ago(data['end_time'])
         one_year_ago_start_time = get_one_year_ago(data['start_time'])
         one_year_ago_end_time = get_one_year_ago(data['end_time'])
+
+        days_numbers = calculate_days_difference(data['start_time'], data['end_time'])
         days_numbers1 = calculate_days_difference(one_week_ago_start_time, one_week_ago_end_time)
         print("days_numbers1:", days_numbers1)
         days_numbers2 = calculate_days_difference(one_year_ago_start_time, one_year_ago_end_time)
         print("days_numbers2:", days_numbers2)
-
-        one_week_ago_query_str = "match data=(t:TIME)-[r1:`事件时间`]->(event)-[r2:`事件地点`]->(a:ADDRESS) where '%s' <= t.time <= '%s' RETURN COUNT(event) AS count_events;" % (one_week_ago_start_time, one_week_ago_end_time)
-        one_year_ago_query_str = "match data=(t:TIME)-[r1:`事件时间`]->(event)-[r2:`事件地点`]->(a:ADDRESS) where '%s' <= t.time <= '%s' RETURN COUNT(event) AS count_events;" % (one_year_ago_start_time, one_year_ago_end_time)
-
         res = []
-        with self.driver.session() as session:
-            result = session.read_transaction(lambda tx: list(tx.run(query_str)))
-            one_week_ago_result = session.read_transaction(lambda tx: list(tx.run(one_week_ago_query_str)))
-            one_year_ago_result = session.read_transaction(lambda tx: list(tx.run(one_year_ago_query_str)))
-        print("result:",result)
-        print('one_week_ago_result:',one_week_ago_result)
-        print('one_year_ago_result:',one_year_ago_result)
-        for item in result:
-            print(item)
-            obj = {
-                "count_events_weeks": item[0],
-                "days_numbers": days_numbers,
-                "count_events_day": item[0]//days_numbers,
-            }
+
+        type_list = {
+            'event': 'event',
+            'ce': 'ce:Criminal_EVENT',
+            'ae': 'ae:Administrative_EVENT',
+            'te': 'te:Traffic_EVENT'
+        }
+        keys_list = list(type_list.keys())
+        values_set = list(type_list.values())
+
+        for i in range(len(type_list)):
+            query_str = "match data=(t:TIME)-[r1:`事件时间`]->(%s)-[r2:`事件地点`]->(a:ADDRESS) where '%s' <= t.time <= '%s' RETURN COUNT(%s) AS count_events" %(values_set[i],start_time, end_time,keys_list[i])
+            one_week_ago_query_str = "match data=(t:TIME)-[r1:`事件时间`]->(%s)-[r2:`事件地点`]->(a:ADDRESS) where '%s' <= t.time <= '%s' RETURN COUNT(%s) AS count_events" %(values_set[i],one_week_ago_start_time, one_week_ago_end_time,keys_list[i])
+            one_year_ago_query_str = "match data=(t:TIME)-[r1:`事件时间`]->(%s)-[r2:`事件地点`]->(a:ADDRESS) where '%s' <= t.time <= '%s' RETURN COUNT(%s) AS count_events" %(values_set[i],one_year_ago_start_time, one_year_ago_end_time,keys_list[i])
+            print(query_str)
+            with self.driver.session() as session:
+                result = session.read_transaction(lambda tx: list(tx.run(query_str)))
+                one_week_ago_result = session.read_transaction(lambda tx: list(tx.run(one_week_ago_query_str)))
+                one_year_ago_result = session.read_transaction(lambda tx: list(tx.run(one_year_ago_query_str)))
+            for item in result:
+                obj = {
+                    keys_list[i]+"count_events_weeks": item[0],
+                    keys_list[i]+"days_numbers": days_numbers,
+                    keys_list[i]+"count_events_day": item[0] // days_numbers,
+                }
+            for item in one_week_ago_result:
+                print(item)
+                obj1 = {
+                    keys_list[i]+"count_events_weeks1": item[0],
+                    keys_list[i]+"days_numbers1": days_numbers1,
+                    keys_list[i]+"count_events_day1": item[0] // days_numbers1,
+                }
+                obj.update(obj1)
+            for item in one_year_ago_result:
+                print(item)
+                obj2 = {
+                    keys_list[i]+"count_events_weeks2": item[0],
+                    keys_list[i]+"days_numbers2": days_numbers2,
+                    keys_list[i]+"count_events_day2": item[0] // days_numbers1,
+                }
+                obj.update(obj2)
+            huanbi_rate = calculate_yoy_growth_rate(obj[keys_list[i]+"count_events_weeks"],obj1[keys_list[i]+"count_events_weeks1"])
+            if huanbi_rate == float('inf'):
+                print("去年值为零，无法计算同比增长率。")
+                huanbi = {
+                    keys_list[i]+'huanbi_change': "去年值为零，无法计算同比增长率。",
+                    keys_list[i]+'huanbi_rate': -1
+                }
+            else:
+                print("环比增长率为： {:.2f}%".format(huanbi_rate))
+                print("环比增长率为： {:.2f}%", huanbi_rate)
+                if huanbi_rate >= 0:
+                    huanbi = {
+                        keys_list[i]+'huanbi_change': '上升',
+                        keys_list[i]+'huanbi_rate': "{:.2f}%".format(abs(huanbi_rate))
+
+                    }
+                else:
+                    huanbi = {
+                        'ce_huanbi_change': '下降',
+                        'ce_huanbi_rate': "{:.2f}%".format(abs(huanbi_rate))
+
+                    }
+            obj.update(huanbi)
+
+            tongbi_rate = calculate_yoy_growth_rate(obj[keys_list[i]+"count_events_weeks"], obj[keys_list[i]+"count_events_weeks2"])
+            if tongbi_rate == float('inf'):
+                print("去年值为零，无法计算同比增长率。")
+                tongbi = {
+                    keys_list[i]+'tongbi_change': "去年值为零，无法计算同比增长率。",
+                    keys_list[i]+'tongbi_rate': -1
+
+                }
+            else:
+                print("环比增长率为： {:.2f}%".format(tongbi_rate))
+                if tongbi_rate >= 0:
+                    tongbi = {
+                        keys_list[i]+'tongbi_change': '上升',
+                        keys_list[i]+'tongbi_rate': "{:.2f}%".format(abs(tongbi_rate))
+                    }
+                else:
+                    tongbi = {
+                        keys_list[i]+'tongbi_change': '下降',
+                        keys_list[i]+'tongbi_rate': "{:.2f}%".format(abs(tongbi_rate))
+                    }
+            obj.update(tongbi)
             res.append(obj)
-        for item in one_week_ago_result:
-            print(item)
-            obj1 = {
-                "count_events_weeks1": item[0],
-                "days_numbers1": days_numbers1,
-                "count_events_day1": item[0]//days_numbers1,
-            }
-            # res.append(obj1)
-
-        for item in one_year_ago_result:
-            print(item)
-            obj2 = {
-                "count_events_weeks2": item[0],
-                "days_numbers2": days_numbers2,
-                "count_events_day2": item[0]//days_numbers1,
-            }
-            # res.append(obj2)
-        huanbi_rate = calculate_yoy_growth_rate(obj["count_events_weeks"], obj1["count_events_weeks1"])
-        if huanbi_rate == float('inf'):
-            print("去年值为零，无法计算同比增长率。")
-            huanbi = {
-                'huanbi_change': "去年值为零，无法计算同比增长率。",
-                'huanbi_rate': -1
-
-            }
-        else:
-            print("环比增长率为： {:.2f}%".format(huanbi_rate))
-            print("环比增长率为： {:.2f}%",huanbi_rate)
-            if huanbi_rate >= 0 :
-                huanbi = {
-                    'huanbi_change':'上升',
-                    'huanbi_rate': "{:.2f}%".format(abs(huanbi_rate))
-
-                }
-            else:
-                huanbi = {
-                    'huanbi_change': '下降',
-                    'huanbi_rate': "{:.2f}%".format(abs(huanbi_rate))
-
-                }
-        res.append(huanbi)
-
-        tongbi_rate = calculate_yoy_growth_rate(obj["count_events_weeks"], obj2["count_events_weeks2"])
-        if tongbi_rate == float('inf'):
-            print("去年值为零，无法计算同比增长率。")
-            tongbi = {
-                'tongbi_change': "去年值为零，无法计算同比增长率。",
-                'tongbi_rate': -1
-
-            }
-        else:
-            print("环比增长率为： {:.2f}%".format(tongbi_rate))
-            if tongbi_rate >= 0 :
-                tongbi = {
-                    'tongbi_change':'上升',
-                    'tongbi_rate': "{:.2f}%".format(abs(tongbi_rate))
-
-                }
-            else:
-                tongbi = {
-                    'tongbi_change': '下降',
-                    'tongbi_rate': "{:.2f}%".format(abs(tongbi_rate))
-
-                }
-        print('count_events_weeks:', obj["count_events_weeks"])
-        res.append(tongbi)
         return res
+
 
 
 
