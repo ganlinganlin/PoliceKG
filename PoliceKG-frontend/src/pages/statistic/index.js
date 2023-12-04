@@ -653,7 +653,7 @@ class Statistic extends React.Component {
       {
         label: '交通警情',
         type: '环比',
-        value: -10,
+        value: -0,
       },
 
     ];

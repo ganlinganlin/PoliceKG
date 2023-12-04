@@ -220,12 +220,27 @@ def get_count_events():
         db.close()
         # return Response(dumps({"nodes": nodes, "links": links}),
         #                 mimetype="application/json")
-        return Response(dumps(res),
-                        mimetype="application/json")
+        return Response(dumps(res), mimetype="application/json")
     except json.JSONDecodeError:
         return jsonify({"error": "无效的 JSON 数据"}), 400
 
+@app.route( apiPrefix + '/get_count_events_figure', methods=['POST'])
+@cross_origin()
+def get_count_events_figure():
+    data = request.get_data(as_text=True)
+    # 查询参数
+    params = json.loads(data)
+    print('获取数据:', params)
+    # return params
+    try:
+        # TODO : 根据params 完成查询函数 返回节点和边数据 参考 graph.py search_graph return nodes links
+        db = GraphDB(url, username, password)
+        res = db.get_count_events_figure(params)
 
+        db.close()
+        return Response(dumps(res), mimetype="application/json")
+    except json.JSONDecodeError:
+        return jsonify({"error": "无效的 JSON 数据"}), 400
 
 @app.route( apiPrefix + '/search_address', methods=['POST'])
 @cross_origin()

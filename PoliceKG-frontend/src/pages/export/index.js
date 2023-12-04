@@ -21,8 +21,52 @@ class Export extends React.Component {
     console.log('Statistic');
     this.state = {
       responsive: true,
-      count_events_weeks: '',
-      count_events_day: '',
+      all_events: {
+        eventcount_events_weeks: '',
+        eventdays_numbers: '',
+        eventcount_events_day: '',
+        eventcount_events_weeks1: '',
+        eventdays_numbers1: '',
+        eventcount_events_day1: '',
+        eventcount_events_weeks2: '',
+        eventdays_numbers2: '',
+        eventcount_events_day2: '',
+        eventhuanbi_change: "",
+        eventhuanbi_rate: '',
+        eventtongbi_change: "",
+        eventtongbi_rate: ''
+      },
+
+      eventcount_events_weeks: '',
+      eventdays_numbers: '',
+      eventcount_events_day: '',
+      eventcount_events_weeks1: '',
+      eventdays_numbers1: '',
+      eventcount_events_day1: '',
+      eventcount_events_weeks2: '',
+      eventdays_numbers2: '',
+      eventcount_events_day2: '',
+
+      eventhuanbi_change: "",
+      eventhuanbi_rate: '',
+      eventtongbi_change: "",
+      eventtongbi_rate: '',
+
+      cehuanbi_change: "",
+      cehuanbi_rate: "",
+      cetongbi_change: "",
+      cetongbi_rate: '',
+
+      aehuanbi_change: "",
+      aehuanbi_rate: "",
+      aetongbi_change: "",
+      aetongbi_rate: '',
+
+      tehuanbi_change: "",
+      tehuanbi_rate: "",
+      tetongbi_change: "",
+      tetongbi_rate: '',
+
       time : {
         start_time : '',
         end_time : '',
@@ -41,45 +85,58 @@ class Export extends React.Component {
         }
         console.log(params)
 
-      // HttpUtils.post(ApiUtils.API_GET_COUNT_EVENTS, params)
-      //   .then((res) => {
-      //     console.log('返回结果:', res);
-      //     this.setState({
-      //       count_events_weeks: res.count_events_weeks,
-      //       count_events_day: res.count_events_day,
-      //     });
-      //     console.log(this.state.count_events_weeks)
-      //     console.log(this.state.count_events_day)
-      //   })
-      //   .catch((error) => {
-      //     console.log('error: ' + error.message);
-      //   });
 
       HttpUtils.post(ApiUtils.API_GET_COUNT_EVENTS,params)
           .then((res)=>{
             console.log(res)
-            // let obj = []
-            // res.map(( item, index)=>{
-            //   obj.push({
+            console.log(res[0])
 
-            const{count_events_weeks,count_events_day}=res[0];
-
-
-            //   })
-            // })
 
             this.setState({
-              count_events_weeks : count_events_weeks,
-              count_events_day : count_events_day
+
+              eventcount_events_weeks : res[0]['eventcount_events_weeks'],
+              eventcount_events_day :  res[0]['eventcount_events_day'],
+              eventdays_numbers: res[0]['eventdays_numbers'],
+              // eventcount_events_weeks1: res[0]['eventcount_events_day'],
+              // eventdays_numbers1: res[0]['eventcount_events_day'],
+              // eventcount_events_day1: res[0]['eventcount_events_day'],
+              // eventcount_events_weeks2: res[0]['eventcount_events_day'],
+              // eventdays_numbers2: res[0]['eventcount_events_day'],
+              // eventcount_events_day2: res[0]['eventcount_events_day'],
+              eventhuanbi_change: res[0]['eventhuanbi_change'],
+              eventhuanbi_rate: res[0]['eventhuanbi_rate'],
+              eventtongbi_change: res[0]['eventtongbi_change'],
+              eventtongbi_rate: res[0]['eventtongbi_rate'],
+
+              cehuanbi_change: res[1]['cehuanbi_change'],
+              cehuanbi_rate: res[1]['cehuanbi_rate'],
+              cetongbi_change: res[1]['cetongbi_change'],
+              cetongbi_rate: res[1]['cetongbi_rate'],
+
+              aehuanbi_change: res[2]['aehuanbi_change'],
+              aehuanbi_rate: res[2]['aehuanbi_rate'],
+              aetongbi_change: res[2]['aetongbi_change'],
+              aetongbi_rate: res[2]['aetongbi_rate'],
+
+              tehuanbi_change: res[3]['tehuanbi_change'],
+              tehuanbi_rate: res[3]['tehuanbi_rate'],
+              tetongbi_change: res[3]['tetongbi_change'],
+              tetongbi_rate: res[3]['tetongbi_rate'],
             },
     () => {
-              console.log('count1',count_events_weeks);
-              console.log('count2',count_events_day);
+              console.log('count1',res[0]['eventcount_events_weeks']);
+              console.log('count2',res[0]['eventcount_events_day']);
               const content = '<w:t>每周警情通报</w:t>' +
-                        '<w:r>（2023年第36期'+this.state.time['start_time']+'至'+this.state.time['end_time']+'）</w:r>' +
-                        '<w:r>指挥室指挥调度科---'+this.state.time['end_time']+'</w:r>' +
+                        '<w:r>（2023年第*期'+this.state.time['start_time']+'至'+this.state.time['end_time']+'）</w:r>' +
+                        '<w:r>指挥室指挥调度科--------------------------------------'+this.state.time['end_time']+'</w:r>' +
                         '<w:r>本周警情综述</w:r>' +
-                        '本时段，分局110共接警' + this.state.count_events_weeks + '起，日均'+ this.state.count_events_day + '起。'; // <w:p>为段落,<w:r>为运行元素的xml格式,<w:t>为文本元素
+                        '本时段，分局110共接警' + this.state.eventcount_events_weeks + '起，统计的天数为'+this.state.eventdays_numbers+'天，日均'+ this.state.eventcount_events_day +
+                '起，环比、同比分别'+this.state.eventhuanbi_change+this.state.eventhuanbi_rate+'和'+this.state.eventtongbi_change+this.state.eventtongbi_rate+'。'+
+                '其中，刑事警情环比'+this.state.cehuanbi_change+this.state.cehuanbi_rate+'、同比'+this.state.cetongbi_change+this.state.cetongbi_rate+
+                '；行政（治安）警情环比、同比分别'+this.state.aehuanbi_change+this.state.aehuanbi_rate+'和'+this.state.aetongbi_change+this.state.aetongbi_rate+
+                '；交通警情环比'+this.state.tehuanbi_change+this.state.tehuanbi_rate+'、同比'+this.state.tetongbi_change+this.state.tetongbi_rate+'。'
+              ;
+              // <w:p>为段落,<w:r>为运行元素的xml格式,<w:t>为文本元素
 
               const header = `<?xml version="1.0" encoding="UTF-8"?>
                     <w:wordDocument xmlns:w="urn:schemas-microsoft-com:office:word">
@@ -88,15 +145,15 @@ class Export extends React.Component {
                         </w:body>
                     </w:wordDocument>`;
 
-                const blob = new Blob([header], { type: 'application/msword' });
+              const blob = new Blob([header], { type: 'application/msword' });
 
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = '警情.doc';
-                link.textContent = '点击下载警情.doc';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(blob);
+              link.download = '警情.doc';
+              link.textContent = '点击下载警情.doc';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
             }
             )
 
@@ -934,107 +991,12 @@ class Export extends React.Component {
                       <Button
                           type="primary"
                           onClick={this.exportEmptyWordDocument}>
-	                     导出
+	                     点击查询并导出
                       </Button>
                     </ProCard>
                   </ProCard>
             </div>
 
-        {/*<div>*/}
-        {/*    <h1>导出至Word文档示例</h1>*/}
-        {/*    <p>这是一个简单的示例，演示如何在React中生成并导出Word文档。</p>*/}
-        {/*    <button onClick={this.exportToWord}>导出至Word</button>*/}
-        {/*    <textarea*/}
-        {/*        value={documentContent}*/}
-        {/*        onChange={(e) => setDocumentContent(e.target.value)}*/}
-        {/*        rows={10}*/}
-        {/*        cols={30}*/}
-        {/*    />*/}
-        {/*    <button onClick={exportToWord}>Export to Word</button>*/}
-        {/*</div>*/}
-
-        {/*<ProCard*/}
-        {/*  className="content"*/}
-        {/*  split={this.state.responsive ? 'horizontal' : 'vertical'}*/}
-        {/*  gutter={[16, { xs: 8, sm: 16, md: 24, lg: 32 }]}*/}
-        {/*  ghost*/}
-        {/*>*/}
-        {/*  <ProCard*/}
-        {/*    split={this.state.responsive ? 'horizontal' : 'vertical'}*/}
-        {/*    gutter={[16, { xs: 8, sm: 16, md: 24, lg: 32 }]}*/}
-        {/*    ghost*/}
-        {/*  >*/}
-        {/*    <ProCard className="statisticCard" ghost>*/}
-        {/*      <StatisticCard.Group*/}
-        {/*        colSpan="30%"*/}
-        {/*        gutter={8}*/}
-        {/*        ghost*/}
-        {/*        direction={this.state.responsive ? 'row' : 'column'}*/}
-        {/*      >*/}
-        {/*        <StatisticCard*/}
-        {/*          hoverable*/}
-        {/*          statistic={{*/}
-        {/*            title: '实体总数',*/}
-        {/*            value: '4351',*/}
-        {/*            icon: (*/}
-        {/*              <img*/}
-        {/*                style={imgStyle}*/}
-        {/*                src="https://gw.alipayobjects.com/mdn/rms_7bc6d8/afts/img/A*-jVKQJgA1UgAAAAAAAAAAABkARQnAQ"*/}
-        {/*                alt="icon"*/}
-        {/*              />*/}
-        {/*            ),*/}
-        {/*          }}*/}
-        {/*        />*/}
-        {/*        <StatisticCard*/}
-        {/*          hoverable*/}
-        {/*          statistic={{*/}
-        {/*            title: '关系总数',*/}
-        {/*            value: '1630',*/}
-        {/*            icon: (*/}
-        {/*              <img*/}
-        {/*                style={imgStyle}*/}
-        {/*                src="https://gw.alipayobjects.com/mdn/rms_7bc6d8/afts/img/A*-jVKQJgA1UgAAAAAAAAAAABkARQnAQ"*/}
-        {/*                alt="icon"*/}
-        {/*              />*/}
-        {/*            ),*/}
-        {/*          }}*/}
-        {/*        />*/}
-
-        {/*        <StatisticCard*/}
-        {/*          hoverable*/}
-        {/*          statistic={{*/}
-        {/*            title: '属性总数',*/}
-        {/*            value: '5032',*/}
-        {/*            icon: (*/}
-        {/*              <img*/}
-        {/*                style={imgStyle}*/}
-        {/*                src="https://gw.alipayobjects.com/mdn/rms_7bc6d8/afts/img/A*-jVKQJgA1UgAAAAAAAAAAABkARQnAQ"*/}
-        {/*                alt="icon"*/}
-        {/*              />*/}
-        {/*            ),*/}
-        {/*          }}*/}
-        {/*        />*/}
-        {/*      </StatisticCard.Group>*/}
-        {/*    </ProCard>*/}
-
-        {/*  </ProCard>*/}
-        {/*  <ProCard className="statistic" gutter={8} ghost>*/}
-        {/*      <ProCard*/}
-        {/*            colSpan="50%"*/}
-        {/*            layout="center"*/}
-        {/*            title="本周警情综述"*/}
-        {/*            // split={this.state.responsive ? 'horizontal' : 'vertical'}*/}
-        {/*          >*/}
-        {/*              <DemoBar2 />*/}
-        {/*      </ProCard>*/}
-        {/*      <ProCard layout="center" title="全局有效警情分类情况">*/}
-        {/*          <DemoPie />*/}
-        {/*      </ProCard>*/}
-        {/*  </ProCard>*/}
-
-
-
-        {/*</ProCard>*/}
       </RcResizeObserver>
     );
   }
