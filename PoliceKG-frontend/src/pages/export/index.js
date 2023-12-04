@@ -67,6 +67,8 @@ class Export extends React.Component {
       tetongbi_change: "",
       tetongbi_rate: '',
 
+      weeks_data:[],
+      events_sort:[],
       time : {
         start_time : '',
         end_time : '',
@@ -86,14 +88,14 @@ class Export extends React.Component {
         console.log(params)
 
 
-      HttpUtils.post(ApiUtils.API_GET_COUNT_EVENTS,params)
+
+        HttpUtils.post(ApiUtils.API_GET_COUNT_EVENTS,params)
           .then((res)=>{
             console.log(res)
             console.log(res[0])
 
 
             this.setState({
-
               eventcount_events_weeks : res[0]['eventcount_events_weeks'],
               eventcount_events_day :  res[0]['eventcount_events_day'],
               eventdays_numbers: res[0]['eventdays_numbers'],
@@ -162,6 +164,42 @@ class Export extends React.Component {
             console.log('error: ' + error.message);
           })
 
+        HttpUtils.post(ApiUtils.API_GET_COUNT_EVENTS_FIGURE,params)
+          .then((res)=>{
+            console.log(res)
+            console.log(res[0])
+
+
+            this.setState(
+              {
+              weeks_data: res
+              }
+
+            )
+
+        })
+          .catch((error)=>{
+            console.log('error: ' + error.message);
+          })
+
+        HttpUtils.post(ApiUtils.API_GET_COUNT_EVENTS_SORT,params)
+          .then((res)=>{
+            console.log(res)
+            console.log(res[0])
+
+
+            this.setState(
+              {
+              events_sort: res
+              }
+
+            )
+
+        })
+          .catch((error)=>{
+            console.log('error: ' + error.message);
+          })
+
       };
 
       handleTime( data, dataString)
@@ -185,69 +223,15 @@ class Export extends React.Component {
           })
         }
 
-    exportToWord = () => {
-    const { content } = this.props;
-    mammoth.convertToHtml(content)
-      .then((result) => {
-        const blob = new Blob([result.value], { type: 'application/msword' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'exported-document.docx';
-        a.click()
 
-        URL.revokeObjectURL(url);
-      })
-      .catch((error) => {
-        console.error('导出失败', error);
-      });
-  }
 
-      handleSearch(value){
-        let filterMsg = [];
-        if(value){
-            let queryStringArr = value.split("");
-            let str = "(.*?)";
-            let regStr = str + queryStringArr.join(str) + str;
-            let reg = RegExp(regStr, "i"); // 以mh为例生成的正则表达式为/(.*?)m(.*?)h(.*?)/i
-            this.state.options.map(item => {
-            if (reg.test(item.value)) {
-                filterMsg.push(item);
-            }});
-            // console.log(filterMsg)
-            this.setState({
-                filtermsg : filterMsg
-            })
-        }
-    }
+
 
 
     render() {
-    const imgStyle = {
-      display: 'block',
-      width: 42,
-      height: 42,
-    };
-
 
     // 日期选择框
     const { RangePicker } = DatePicker;
-    const onChange = (date) => {
-      if (date) {
-        console.log('Date: ', date);
-      } else {
-        console.log('Clear');
-      }
-    };
-    const onRangeChange = (dates, dateStrings) => {
-      if (dates) {
-        console.log('From: ', dates[0], ', to: ', dates[1]);
-        console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
-
-      } else {
-        console.log('Clear');
-      }
-    };
     const rangePresets = [
       {
         label: 'Last 7 Days',
@@ -266,41 +250,10 @@ class Export extends React.Component {
         value: [dayjs().add(-90, 'd'), dayjs()],
       },
     ];
-    let istype_small = false
 
 
     const DemoPie = () => {
-      const data = [
-        {
-          type: '刑事',
-          value: 33,
-        },
-        {
-          type: '治安',
-          value: 257,
-        },
-        {
-          type: '交通警情',
-          value: 1432,
-        },
-        {
-          type: '社会纠纷',
-          value: 491,
-        },
-        {
-          type: '群众求助',
-          value: 1923,
-        },
-        {
-          type: '举报违法犯罪线索',
-          value: 78,
-        },
-        {
-          type: '重复警情',
-          value: 745,
-        },
-
-      ];
+      const data = this.state.events_sort;
       const config = {
 
          forceFit: true,
@@ -335,10 +288,7 @@ class Export extends React.Component {
   };
       return <Pie {...config} />;
     };
-    // const echart=DemoPie.getDataURL({
-    //   RixelRatio:2,
-    //   backgroundColor:'#fff',
-    // });
+
     const DemoBar = () => {
       const data = [
         {
@@ -865,137 +815,89 @@ class Export extends React.Component {
       return <Bar {...config} />;
     };
 
-    const DemoBar2 = () => {
-    const data = [
-      {
-        label: '有效警情',
-        type: '同比',
-        value: 7,
-      },
-      {
-        label: '有效警情',
-        type: '环比',
-        value: -3,
-      },
-      {
-        label: '刑事警情',
-        type: '同比',
-        value: -27,
-      },
-      {
-        label: '刑事警情',
-        type: '环比',
-        value: 3,
-      },
-      {
-        label: '行政（治安）警情',
-        type: '同比',
-        value: 64,
-      },
-      {
-        label: '行政（治安）警情',
-        type: '环比',
-        value: 14,
-      },
-      {
-        label: '交通警情',
-        type: '同比',
-        value: 25,
-      },
-      {
-        label: '交通警情',
-        type: '环比',
-        value: -10,
-      },
 
-    ];
-    const config = {
-      data,
-      height: 420,
-      width: 720,
-      isGroup: true,
-      xField: 'value',
-      yField: 'label',
-      seriesField: 'type',
-      dodgePadding: 4,
-      intervalPadding: 20,
-      label: {
-        // 可手动配置 label 数据标签位置
-        position: 'middle',
-        // 'left', 'middle', 'right'
-        // 可配置附加的布局方法
-        layout: [
-          // 柱形图数据标签位置自动调整
-          {
-            type: 'interval-adjust-position',
-          }, // 数据标签防遮挡
-          {
-            type: 'interval-hide-overlap',
-          }, // 数据标签文颜色自动调整
-          {
-            type: 'adjust-color',
-          },
-        ],
-      },
-    };
+    const DemoBar2 = () => {
+      const data = this.state.weeks_data;
+      const config = {
+        data,
+        height: 420,
+        width: 720,
+        isGroup: true,
+        xField: 'value',
+        yField: 'label',
+        seriesField: 'type',
+        dodgePadding: 4,
+        intervalPadding: 20,
+        label: {
+          // 可手动配置 label 数据标签位置
+          position: 'middle',
+          // 'left', 'middle', 'right'
+          // 可配置附加的布局方法
+          layout: [
+            // 柱形图数据标签位置自动调整
+            {
+              type: 'interval-adjust-position',
+            }, // 数据标签防遮挡
+            {
+              type: 'interval-hide-overlap',
+            }, // 数据标签文颜色自动调整
+            {
+              type: 'adjust-color',
+            },
+          ],
+        },
+      };
     return <Bar {...config} />;
   };
 
-    const ExportWordDocument = () => {
-        const [documentContent, setDocumentContent] = useState('Hello, World!');
-
-        const exportToWord = () => {
-        // Load the template content
-        const templateContent = fs.readFileSync('path/to/your/template.docx', 'binary');
-        const template = new Docxtemplater();
-        template.load(templateContent);
-
-        // Set the data for the template
-        const data = {
-          content: documentContent,
-        };
-
-        // Bind the data to the template
-        template.setData(data);
-
-        // Render the template (replace variables with data)
-        template.render();
-
-        // Get the output as a buffer
-        const buffer = template.getZip().generate({ type: 'nodebuffer' });
-
-        // Save the buffer to a Word document
-        fs.writeFileSync('path/to/exported/document.docx', buffer);
-      };
-    };
 
     return (
       <RcResizeObserver
         key="resize-observer"
-        // onResize={(offset) => {
-        //   this.setState({
-        //     setResponsive: offset.width < 596,
-        //   });
-        // }}
+
       >
-        <div  className="KG_container"
-              // title="事件统计"
-              // split={this.state.responsive ? 'horizontal' : 'vertical'}
-              // bordered
-            >
-                  <ProCard title="事件统计" bordered gutter={8}>
-                    <ProCard bordered colSpan="30%" >
-                        <RangePicker  presets={rangePresets} onChange={ (data, dataString)  => this.handleTime( data, dataString)} />
-                      </ProCard>
-                    <ProCard bordered colSpan="40%"  >
+        <div  className="KG_container">
+            <ProCard title="事件统计" bordered gutter={8}>
+                  <ProCard bordered colSpan="30%" >
+                      <RangePicker  presets={rangePresets} onChange={ (data, dataString)  => this.handleTime( data, dataString)} />
+                  </ProCard>
+                  <ProCard bordered colSpan="40%"  >
                       <Button
                           type="primary"
                           onClick={this.exportEmptyWordDocument}>
-	                     点击查询并导出
+                       点击查询并导出
                       </Button>
-                    </ProCard>
                   </ProCard>
-            </div>
+            </ProCard>
+            <ProCard
+                split={this.state.responsive ? 'horizontal' : 'vertical'}
+                gutter={[8, { xs: 8, sm: 16, md: 24, lg: 32 }]}
+                ghost
+              >
+                  <ProCard className="statistic" gutter={8} ghost>
+                      <ProCard
+                            colSpan="50%"
+                            layout="center"
+                            title="本周警情综述"
+                          >
+                              <DemoBar2 />
+                      </ProCard>
+                      <ProCard layout="center" title="全局有效警情分类情况">
+                          <DemoPie />
+                      </ProCard>
+                  </ProCard>
+                  <ProCard className="statistic" gutter={8} ghost>
+                      <ProCard layout="center" title="本时段各单位110接报警情一览表（2023年10月26日至11月1日）">
+                          <DemoBar />
+                      </ProCard>
+                      <ProCard layout="center" title="2023年以来各单位110接报警情一览表（2023年1月1日至11月1日）">
+                          <DemoBar1 />
+                      </ProCard>
+                  </ProCard>
+            </ProCard>
+        </div>
+
+
 
       </RcResizeObserver>
     );

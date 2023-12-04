@@ -203,6 +203,7 @@ def get_address():
     return send_from_directory('./src','records_address.json')
 
 
+#word文档导出
 @app.route( apiPrefix + '/get_count_events', methods=['POST'])
 @cross_origin()
 def get_count_events():
@@ -224,6 +225,8 @@ def get_count_events():
     except json.JSONDecodeError:
         return jsonify({"error": "无效的 JSON 数据"}), 400
 
+
+# 本周警情综述
 @app.route( apiPrefix + '/get_count_events_figure', methods=['POST'])
 @cross_origin()
 def get_count_events_figure():
@@ -241,6 +244,29 @@ def get_count_events_figure():
         return Response(dumps(res), mimetype="application/json")
     except json.JSONDecodeError:
         return jsonify({"error": "无效的 JSON 数据"}), 400
+
+
+
+# 全局有效警情分类情况
+@app.route( apiPrefix + '/get_count_events_sort', methods=['POST'])
+@cross_origin()
+def get_count_events_sort():
+    data = request.get_data(as_text=True)
+    # 查询参数
+    params = json.loads(data)
+    print('获取数据:', params)
+    # return params
+    try:
+        # TODO : 根据params 完成查询函数 返回节点和边数据 参考 graph.py search_graph return nodes links
+        db = GraphDB(url, username, password)
+        res = db.get_count_events_sort(params)
+
+        db.close()
+        return Response(dumps(res), mimetype="application/json")
+    except json.JSONDecodeError:
+        return jsonify({"error": "无效的 JSON 数据"}), 400
+
+
 
 @app.route( apiPrefix + '/search_address', methods=['POST'])
 @cross_origin()

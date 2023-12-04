@@ -19,6 +19,8 @@ export default class ApiUtils {
   static API_WHOLE_ADDRESS = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/get_address';
   static API_SEARCH_NODE = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/node';
   static API_GET_COUNT_EVENTS = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/get_count_events';
+  static API_GET_COUNT_EVENTS_FIGURE = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/get_count_events_figure';
+  static API_GET_COUNT_EVENTS_SORT = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/get_count_events_sort';
   // static API_CHECK_PASSWORD = ApiUtils.URL_ROOT + '/checkPassword';
   // static API_ADMIN = ApiUtils.URL_ROOT + '/gotoAdmin'; //进入管理员状态
   // static API_EXPORT_TO_FILE = ApiUtils.URL_ROOT + '/export_to_file'; //将数据导出到文件
