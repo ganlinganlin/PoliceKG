@@ -69,10 +69,14 @@ class Export extends React.Component {
 
       weeks_data:[],
       events_sort:[],
+      schedule_this_time :[],
+      schedule_all_time :[],
       time : {
         start_time : '',
         end_time : '',
       },
+      start_time1:'',
+      end_time1:'',
     };
   }
 
@@ -88,7 +92,7 @@ class Export extends React.Component {
         console.log(params)
 
 
-
+        // #word文档导出
         HttpUtils.post(ApiUtils.API_GET_COUNT_EVENTS,params)
           .then((res)=>{
             console.log(res)
@@ -164,6 +168,7 @@ class Export extends React.Component {
             console.log('error: ' + error.message);
           })
 
+        // # 本周警情综述
         HttpUtils.post(ApiUtils.API_GET_COUNT_EVENTS_FIGURE,params)
           .then((res)=>{
             console.log(res)
@@ -182,6 +187,7 @@ class Export extends React.Component {
             console.log('error: ' + error.message);
           })
 
+        // # 全局有效警情分类情况
         HttpUtils.post(ApiUtils.API_GET_COUNT_EVENTS_SORT,params)
           .then((res)=>{
             console.log(res)
@@ -199,6 +205,65 @@ class Export extends React.Component {
           .catch((error)=>{
             console.log('error: ' + error.message);
           })
+
+        // # 本时段各单位110接报警情一览表
+        HttpUtils.post(ApiUtils.API_GET_SCHEDULE_THIS_TIME,params)
+          .then((res)=>{
+            console.log(res)
+            console.log(res[0])
+
+
+            this.setState(
+              {
+              schedule_this_time: res
+              }
+
+            )
+
+        })
+          .catch((error)=>{
+            console.log('error: ' + error.message);
+          })
+
+
+        // # 2023年以来各单位110接报警情一览表
+        HttpUtils.post(ApiUtils.API_GET_SCHEDULE_ALL_TIME,params)
+          .then((res)=>{
+            console.log(res)
+            console.log(res[0])
+
+
+            this.setState(
+              {
+              schedule_all_time: res
+              }
+
+            )
+
+        })
+          .catch((error)=>{
+            console.log('error: ' + error.message);
+          })
+
+
+        // # 2023年以来时间
+        HttpUtils.post(ApiUtils.API_GET_ALL_TIME,params)
+          .then((res)=>{
+            console.log(res)
+            console.log(res['start_time1'])
+
+            this.setState(
+              {
+                start_time1: res['start_time1'],
+                end_time1: res['end_time1'],
+              }
+            )
+
+        })
+          .catch((error)=>{
+            console.log('error: ' + error.message);
+          })
+
 
       };
 
@@ -290,245 +355,14 @@ class Export extends React.Component {
     };
 
     const DemoBar = () => {
-      const data = [
-        {
-          year: '天穆所',
-          value: 384,
-          type: '全部警情',
-        },
-        {
-          year: '宜兴埠所',
-          value: 362,
-          type: '全部警情',
-        },
-        {
-          year: '普东所',
-          value: 360,
-          type: '全部警情',
-        },
-        {
-          year: '小淀所',
-          value: 271,
-          type: '全部警情',
-        },
-        {
-          year: '西堤头所',
-          value: 268,
-          type: '全部警情',
-        },
-        {
-          year: '双口所',
-          value: 262,
-          type: '全部警情',
-        },
-        {
-          year: '瑞景所',
-          value: 262,
-          type: '全部警情',
-        },
-        {
-          year: '双街所',
-          value: 248,
-          type: '全部警情',
-        },
-        {
-          year: '青光所',
-          value: 225,
-          type: '全部警情',
-        },
-        {
-          year: '天穆所',
-          value: 5,
-          type: '刑事警情',
-        },
-        {
-          year: '宜兴埠所',
-          value: 4,
-          type: '刑事警情',
-        },
-        {
-          year: '普东所',
-          value: 3,
-          type: '刑事警情',
-        },
-
-        {
-          year: '小淀所',
-          value: 5,
-          type: '刑事警情',
-        },
-        {
-          year: '西堤头所',
-          value: 2,
-          type: '刑事警情',
-        },
-        {
-          year: '双口所',
-          value: 1,
-          type: '刑事警情',
-        },
-        {
-          year: '瑞景所',
-          value: 2,
-          type: '刑事警情',
-        },
-        {
-          year: '双街所',
-          value: 3,
-          type: '刑事警情',
-        },
-        {
-          year: '青光所',
-          value: 1,
-          type: '刑事警情',
-        },
-        {
-          year: '天穆所',
-          value: 3,
-          type: '治安警情',
-        },
-        {
-          year: '宜兴埠所',
-          value: 14,
-          type: '治安警情',
-        },
-        {
-          year: '普东所',
-          value: 13,
-          type: '治安警情',
-        },
-
-        {
-          year: '小淀所',
-          value: 5,
-          type: '治安警情',
-        },
-        {
-          year: '西堤头所',
-          value: 4,
-          type: '治安警情',
-        },
-        {
-          year: '双口所',
-          value: 6,
-          type: '治安警情',
-        },
-        {
-          year: '瑞景所',
-          value: 7,
-          type: '治安警情',
-        },
-        {
-          year: '双街所',
-          value: 9,
-          type: '治安警情',
-        },
-        {
-          year: '青光所',
-          value: 13,
-          type: '治安警情',
-        },
-
-        {
-          year: '天穆所',
-          value: 3,
-          type: '电信诈骗',
-        },
-        {
-          year: '宜兴埠所',
-          value: 4,
-          type: '电信诈骗',
-        },
-        {
-          year: '普东所',
-          value: 3,
-          type: '电信诈骗',
-        },
-
-        {
-          year: '小淀所',
-          value: 5,
-          type: '电信诈骗',
-        },
-        {
-          year: '西堤头所',
-          value: 4.9,
-          type: '电信诈骗',
-        },
-        {
-          year: '双口所',
-          value: 6,
-          type: '电信诈骗',
-        },
-        {
-          year: '瑞景所',
-          value: 7,
-          type: '电信诈骗',
-        },
-        {
-          year: '双街所',
-          value: 5,
-          type: '电信诈骗',
-        },
-        {
-          year: '青光所',
-          value: 3,
-          type: '电信诈骗',
-        },
-        {
-          year: '天穆所',
-          value: 3,
-          type: '重复警情',
-        },
-        {
-          year: '宜兴埠所',
-          value: 74,
-          type: '重复警情',
-        },
-        {
-          year: '普东所',
-          value: 69,
-          type: '重复警情',
-        },
-
-        {
-          year: '小淀所',
-          value: 95,
-          type: '重复警情',
-        },
-        {
-          year: '西堤头所',
-          value: 33,
-          type: '重复警情',
-        },
-        {
-          year: '双口所',
-          value: 36,
-          type: '重复警情',
-        },
-        {
-          year: '瑞景所',
-          value: 27,
-          type: '重复警情',
-        },
-        {
-          year: '双街所',
-          value: 39,
-          type: '重复警情',
-        },
-        {
-          year: '青光所',
-          value: 13,
-          type: '重复警情',
-        },
-      ];
+      const data = this.state.schedule_this_time;
       const config = {
         data: data.reverse(),
         height: 420,
         width: 720,
         isStack: true,
         xField: 'value',
-        yField: 'year',
+        yField: 'key',
         seriesField: 'type',
         label: {
           // 可手动配置 label 数据标签位置
@@ -553,245 +387,14 @@ class Export extends React.Component {
     };
 
     const DemoBar1 = () => {
-      const data = [
-        {
-          year: '天穆所',
-          value: 17605,
-          type: '全部警情',
-        },
-        {
-          year: '宜兴埠所',
-          value: 16889,
-          type: '全部警情',
-        },
-        {
-          year: '普东所',
-          value: 12025,
-          type: '全部警情',
-        },
-        {
-          year: '小淀所',
-          value: 11807,
-          type: '全部警情',
-        },
-        {
-          year: '西堤头所',
-          value: 11336,
-          type: '全部警情',
-        },
-        {
-          year: '双口所',
-          value: 10853,
-          type: '全部警情',
-        },
-        {
-          year: '瑞景所',
-          value: 10735,
-          type: '全部警情',
-        },
-        {
-          year: '双街所',
-          value: 10697,
-          type: '全部警情',
-        },
-        {
-          year: '青光所',
-          value: 9046,
-          type: '全部警情',
-        },
-        {
-          year: '天穆所',
-          value: 248,
-          type: '刑事警情',
-        },
-        {
-          year: '宜兴埠所',
-          value: 94,
-          type: '刑事警情',
-        },
-        {
-          year: '普东所',
-          value: 113,
-          type: '刑事警情',
-        },
-
-        {
-          year: '小淀所',
-          value: 115,
-          type: '刑事警情',
-        },
-        {
-          year: '西堤头所',
-          value: 92,
-          type: '刑事警情',
-        },
-        {
-          year: '双口所',
-          value: 111,
-          type: '刑事警情',
-        },
-        {
-          year: '瑞景所',
-          value: 102,
-          type: '刑事警情',
-        },
-        {
-          year: '双街所',
-          value: 93,
-          type: '刑事警情',
-        },
-        {
-          year: '青光所',
-          value: 91,
-          type: '刑事警情',
-        },
-        {
-          year: '天穆所',
-          value: 1223,
-          type: '治安警情',
-        },
-        {
-          year: '宜兴埠所',
-          value: 1124,
-          type: '治安警情',
-        },
-        {
-          year: '普东所',
-          value: 813,
-          type: '治安警情',
-        },
-
-        {
-          year: '小淀所',
-          value: 875,
-          type: '治安警情',
-        },
-        {
-          year: '西堤头所',
-          value: 984,
-          type: '治安警情',
-        },
-        {
-          year: '双口所',
-          value: 856,
-          type: '治安警情',
-        },
-        {
-          year: '瑞景所',
-          value: 677,
-          type: '治安警情',
-        },
-        {
-          year: '双街所',
-          value: 749,
-          type: '治安警情',
-        },
-        {
-          year: '青光所',
-          value: 613,
-          type: '治安警情',
-        },
-
-        {
-          year: '天穆所',
-          value: 163,
-          type: '电信诈骗',
-        },
-        {
-          year: '宜兴埠所',
-          value: 94,
-          type: '电信诈骗',
-        },
-        {
-          year: '普东所',
-          value: 83,
-          type: '电信诈骗',
-        },
-
-        {
-          year: '小淀所',
-          value: 85,
-          type: '电信诈骗',
-        },
-        {
-          year: '西堤头所',
-          value: 47,
-          type: '电信诈骗',
-        },
-        {
-          year: '双口所',
-          value: 69,
-          type: '电信诈骗',
-        },
-        {
-          year: '瑞景所',
-          value: 77,
-          type: '电信诈骗',
-        },
-        {
-          year: '双街所',
-          value: 85,
-          type: '电信诈骗',
-        },
-        {
-          year: '青光所',
-          value: 53,
-          type: '电信诈骗',
-        },
-        {
-          year: '天穆所',
-          value: 4543,
-          type: '重复警情',
-        },
-        {
-          year: '宜兴埠所',
-          value: 3564,
-          type: '重复警情',
-        },
-        {
-          year: '普东所',
-          value: 3269,
-          type: '重复警情',
-        },
-
-        {
-          year: '小淀所',
-          value: 2395,
-          type: '重复警情',
-        },
-        {
-          year: '西堤头所',
-          value: 2333,
-          type: '重复警情',
-        },
-        {
-          year: '双口所',
-          value: 1836,
-          type: '重复警情',
-        },
-        {
-          year: '瑞景所',
-          value: 1827,
-          type: '重复警情',
-        },
-        {
-          year: '双街所',
-          value: 1639,
-          type: '重复警情',
-        },
-        {
-          year: '青光所',
-          value: 1313,
-          type: '重复警情',
-        },
-      ];
+      const data = this.state.schedule_all_time;
       const config = {
         data: data.reverse(),
         height: 420,
         width: 720,
         isStack: true,
         xField: 'value',
-        yField: 'year',
+        yField: 'key',
         seriesField: 'type',
         label: {
           // 可手动配置 label 数据标签位置
@@ -878,19 +481,19 @@ class Export extends React.Component {
                       <ProCard
                             colSpan="50%"
                             layout="center"
-                            title="本周警情综述"
+                            title={"本周警情综述（"+this.state.time.start_time+"至"+this.state.time.end_time+"）"}
                           >
                               <DemoBar2 />
                       </ProCard>
-                      <ProCard layout="center" title="全局有效警情分类情况">
+                      <ProCard layout="center" title={"全局有效警情分类情况（"+this.state.time.start_time+"至"+this.state.time.end_time+"）"}>
                           <DemoPie />
                       </ProCard>
                   </ProCard>
                   <ProCard className="statistic" gutter={8} ghost>
-                      <ProCard layout="center" title="本时段各单位110接报警情一览表（2023年10月26日至11月1日）">
+                      <ProCard layout="center" title={"本时段各单位110接报警情一览表（"+this.state.time.start_time+"至"+this.state.time.end_time+"）"}>
                           <DemoBar />
                       </ProCard>
-                      <ProCard layout="center" title="2023年以来各单位110接报警情一览表（2023年1月1日至11月1日）">
+                      <ProCard layout="center" title={"2023年以来各单位110接报警情一览表（"+this.state.start_time1+"至"+this.state.end_time1+")"}>
                           <DemoBar1 />
                       </ProCard>
                   </ProCard>

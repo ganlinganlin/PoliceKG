@@ -268,6 +268,67 @@ def get_count_events_sort():
 
 
 
+# 本时段各单位110接报警情一览表
+@app.route( apiPrefix + '/get_schedule_this_time', methods=['POST'])
+@cross_origin()
+def get_schedule_this_time():
+    data = request.get_data(as_text=True)
+    # 查询参数
+    params = json.loads(data)
+    print('获取数据:', params)
+    # return params
+    try:
+        # TODO : 根据params 完成查询函数 返回节点和边数据 参考 graph.py search_graph return nodes links
+        db = GraphDB(url, username, password)
+        res = db.get_schedule_this_time(params)
+
+        db.close()
+        return Response(dumps(res), mimetype="application/json")
+    except json.JSONDecodeError:
+        return jsonify({"error": "无效的 JSON 数据"}), 400
+
+
+
+# 2023年以来各单位110接报警情一览表
+@app.route( apiPrefix + '/get_schedule_all_time', methods=['POST'])
+@cross_origin()
+def get_schedule_all_time():
+    data = request.get_data(as_text=True)
+    # 查询参数
+    params = json.loads(data)
+    print('获取数据:', params)
+    # return params
+    try:
+        # TODO : 根据params 完成查询函数 返回节点和边数据 参考 graph.py search_graph return nodes links
+        db = GraphDB(url, username, password)
+        res = db.get_schedule_all_time(params)
+
+        db.close()
+        return Response(dumps(res), mimetype="application/json")
+    except json.JSONDecodeError:
+        return jsonify({"error": "无效的 JSON 数据"}), 400
+
+
+@app.route( apiPrefix + '/get_all_time', methods=['POST'])
+@cross_origin()
+def get_all_time():
+    data = request.get_data(as_text=True)
+    # 查询参数
+    params = json.loads(data)
+    print('获取数据:', params)
+    # return params
+    try:
+        # TODO : 根据params 完成查询函数 返回节点和边数据 参考 graph.py search_graph return nodes links
+        db = GraphDB(url, username, password)
+        res = db.get_all_time(params)
+
+        db.close()
+        return Response(dumps(res), mimetype="application/json")
+    except json.JSONDecodeError:
+        return jsonify({"error": "无效的 JSON 数据"}), 400
+
+
+
 @app.route( apiPrefix + '/search_address', methods=['POST'])
 @cross_origin()
 def search_address():
@@ -285,6 +346,8 @@ def search_address():
                         mimetype="application/json")
     except json.JSONDecodeError:
         return jsonify({"error": "无效的 JSON 数据"}), 400
+
+
 
 
 @app.route( apiPrefix + '/search_address_number', methods=['POST'])

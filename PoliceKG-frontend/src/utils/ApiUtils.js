@@ -21,6 +21,10 @@ export default class ApiUtils {
   static API_GET_COUNT_EVENTS = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/get_count_events';
   static API_GET_COUNT_EVENTS_FIGURE = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/get_count_events_figure';
   static API_GET_COUNT_EVENTS_SORT = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/get_count_events_sort';
+  static API_GET_SCHEDULE_THIS_TIME = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/get_schedule_this_time';
+  static API_GET_SCHEDULE_ALL_TIME = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/get_schedule_all_time';
+  static API_GET_ALL_TIME = ApiUtils.URL_IP + ApiUtils.URL_ROOT + '/get_all_time';
+
   // static API_CHECK_PASSWORD = ApiUtils.URL_ROOT + '/checkPassword';
   // static API_ADMIN = ApiUtils.URL_ROOT + '/gotoAdmin'; //进入管理员状态
   // static API_EXPORT_TO_FILE = ApiUtils.URL_ROOT + '/export_to_file'; //将数据导出到文件
