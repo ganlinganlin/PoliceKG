@@ -56,6 +56,20 @@ def calculate_yoy_growth_rate(current_year_value, last_year_value):
         # 处理除零错误（如果去年值为零）
         return float('inf')
 
+def adjust_dates(start_date_str, end_date_str):
+    # 将字符串转换为日期对象
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+
+    # 将初始时间调整为每年的1月1日
+    adjusted_start_date = datetime(start_date.year, 1, 1)
+    # 将终止时间调整为相同年份的那个月份的1日
+    adjusted_end_date = datetime(end_date.year, end_date.month, 1)
+
+    # 返回调整后的日期字符串
+    return adjusted_start_date.strftime('%Y-%m-%d'), adjusted_end_date.strftime('%Y-%m-%d')
+
+
 
 class GraphDB:
 
@@ -529,6 +543,151 @@ class GraphDB:
             res.append(obj)
         return res
 
+
+
+    # 本时段各单位110接报警情一览表
+    def get_schedule_this_time(self,data):
+        start_time = data['start_time']
+        end_time = data['end_time']
+
+        res = []
+
+        query_str_1 = "MATCH data = (p:PRU)-[r1:`事件负责单位`]->(e)-[r2:`事件时间`]->(t:TIME) WHERE '%s' <= t.time <= '%s' WITH p, e, r2, t RETURN p.first_unit, p.name, count(*) AS events ORDER BY events DESC;" %(start_time, end_time)
+        query_str_2 = "MATCH data = (p:PRU)-[r1:`事件负责单位`]->(ce:Criminal_EVENT)-[r2:`事件时间`]->(t:TIME) WHERE '%s' <= t.time <= '%s' WITH p, ce, r2, t RETURN p.first_unit, p.name,labels(ce), count(*) AS events ORDER BY events DESC;" %(start_time, end_time)
+        query_str_3 = "MATCH data = (p:PRU)-[r1:`事件负责单位`]->(ae:Administrative_EVENT)-[r2:`事件时间`]->(t:TIME) WHERE '%s' <= t.time <= '%s' WITH p, ae, r2, t RETURN p.first_unit, p.name,labels(ae), count(*) AS events ORDER BY events DESC;" %(start_time, end_time)
+        query_str_4 = "MATCH data = (p:PRU)-[r1:`事件负责单位`]->(e)-[r2:`事件时间`]->(t:TIME) WHERE '%s' <= t.time <= '%s' WITH p, e, r2, t MATCH data2 = (e)-[r3:`事件报警类别`]->(ac:Alarm_Category) WHERE ac.small = '通信网络诈骗' AND ac.category IN ['行政(治安)警情','刑事警情'] RETURN p.first_unit, p.name, count(*) AS events ORDER BY events DESC ;" %(start_time, end_time)
+        query_str_5 = "MATCH data = (p:PRU)-[r1:`事件负责单位`]->(e)-[r2:`事件时间`]->(t:TIME) WHERE '%s' <= t.time <= '%s' WITH  p.first_unit AS first_unit, p.name AS name, e.phone AS phone, count(*) AS numbers WHERE numbers >=2 RETURN first_unit, name, count(*) AS events ORDER BY events DESC;" %(start_time, end_time)
+
+        print(query_str_1)
+        with self.driver.session() as session:
+            result_1 = session.read_transaction(lambda tx: list(tx.run(query_str_1)))
+            result_2 = session.read_transaction(lambda tx: list(tx.run(query_str_2)))
+            result_3 = session.read_transaction(lambda tx: list(tx.run(query_str_3)))
+            result_4 = session.read_transaction(lambda tx: list(tx.run(query_str_4)))
+            result_5 = session.read_transaction(lambda tx: list(tx.run(query_str_5)))
+
+        # print(result)
+        for item in result_1:
+            # print(item)
+            obj = {
+                "key": item[1],
+                'value':item[2],
+                'type': '全部警情',
+            }
+            res.append(obj)
+        for item in result_2:
+            # print(item)
+            obj2 = {
+                "key": item[1],
+                'value':item[3],
+                'type': '刑事警情',
+            }
+            res.append(obj2)
+        for item in result_3:
+            # print(item)
+            obj3 = {
+                "key": item[1],
+                'value':item[3],
+                'type': '治安警情',
+            }
+            res.append(obj3)
+        for item in result_4:
+            # print(item)
+            obj4 = {
+                "key": item[1],
+                'value':item[2],
+                'type': '诈骗警情',
+            }
+            res.append(obj4)
+        for item in result_5:
+            # print(item)
+            obj5 = {
+                "key": item[1],
+                'value':item[2],
+                'type': '重复警情',
+            }
+            res.append(obj5)
+        return res
+
+
+    # 2023年以来各单位110接报警情一览表
+    def get_schedule_all_time(self,data):
+        start_time = data['start_time']
+        end_time = data['end_time']
+        start_time1, end_time1 = adjust_dates(start_time, end_time)
+        res = []
+
+        query_str_1 = "MATCH data = (p:PRU)-[r1:`事件负责单位`]->(e)-[r2:`事件时间`]->(t:TIME) WHERE '%s' <= t.time <= '%s' WITH p, e, r2, t RETURN p.first_unit, p.name, count(*) AS events ORDER BY events DESC;" % (start_time1, end_time1)
+        query_str_2 = "MATCH data = (p:PRU)-[r1:`事件负责单位`]->(ce:Criminal_EVENT)-[r2:`事件时间`]->(t:TIME) WHERE '%s' <= t.time <= '%s' WITH p, ce, r2, t RETURN p.first_unit, p.name,labels(ce), count(*) AS events ORDER BY events DESC;" % (start_time1, end_time1)
+        query_str_3 = "MATCH data = (p:PRU)-[r1:`事件负责单位`]->(ae:Administrative_EVENT)-[r2:`事件时间`]->(t:TIME) WHERE '%s' <= t.time <= '%s' WITH p, ae, r2, t RETURN p.first_unit, p.name,labels(ae), count(*) AS events ORDER BY events DESC;" % (start_time1, end_time1)
+        query_str_4 = "MATCH data = (p:PRU)-[r1:`事件负责单位`]->(e)-[r2:`事件时间`]->(t:TIME) WHERE '%s' <= t.time <= '%s' WITH p, e, r2, t MATCH data2 = (e)-[r3:`事件报警类别`]->(ac:Alarm_Category) WHERE ac.small = '通信网络诈骗' AND ac.category IN ['行政(治安)警情','刑事警情'] RETURN p.first_unit, p.name, count(*) AS events ORDER BY events DESC ;" % (start_time1, end_time1)
+        query_str_5 = "MATCH data = (p:PRU)-[r1:`事件负责单位`]->(e)-[r2:`事件时间`]->(t:TIME) WHERE '%s' <= t.time <= '%s' WITH  p.first_unit AS first_unit, p.name AS name, e.phone AS phone, count(*) AS numbers WHERE numbers >=2 RETURN first_unit, name, count(*) AS events ORDER BY events DESC;" % (start_time1, end_time1)
+
+        print(query_str_1)
+        with self.driver.session() as session:
+            result_1 = session.read_transaction(lambda tx: list(tx.run(query_str_1)))
+            result_2 = session.read_transaction(lambda tx: list(tx.run(query_str_2)))
+            result_3 = session.read_transaction(lambda tx: list(tx.run(query_str_3)))
+            result_4 = session.read_transaction(lambda tx: list(tx.run(query_str_4)))
+            result_5 = session.read_transaction(lambda tx: list(tx.run(query_str_5)))
+
+        # print(result)
+        for item in result_1:
+            # print(item)
+            obj = {
+                "key": item[1],
+                'value': item[2],
+                'type': '全部警情',
+            }
+            res.append(obj)
+        for item in result_2:
+            # print(item)
+            obj2 = {
+                "key": item[1],
+                'value': item[3],
+                'type': '刑事警情',
+            }
+            res.append(obj2)
+        for item in result_3:
+            # print(item)
+            obj3 = {
+                "key": item[1],
+                'value': item[3],
+                'type': '治安警情',
+            }
+            res.append(obj3)
+        for item in result_4:
+            # print(item)
+            obj4 = {
+                "key": item[1],
+                'value': item[2],
+                'type': '诈骗警情',
+            }
+            res.append(obj4)
+        for item in result_5:
+            # print(item)
+            obj5 = {
+                "key": item[1],
+                'value': item[2],
+                'type': '重复警情',
+            }
+            res.append(obj5)
+        return res
+
+
+    def get_all_time(self,data):
+        start_time = data['start_time']
+        end_time = data['end_time']
+        start_time1, end_time1 = adjust_dates(start_time, end_time)
+        res = []
+
+        obj = {
+            "start_time1": start_time1,
+            'end_time1': end_time1,
+        }
+        res.append(obj)
+
+        return res[0]
 
 
 
