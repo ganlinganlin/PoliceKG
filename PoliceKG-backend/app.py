@@ -164,27 +164,6 @@ def get_graph():
     # return Response(dumps({"nodes": nodes, "links": temp}),
     #                 mimetype="application/json")
 
-#
-# @app.route( apiPrefix + '/question', methods=['POST'])
-# def query():
-#     data = request.get_data(as_text = True)
-#     print(data)
-#     # question = request.form.to_dict().get("question", "")
-#     # question = '进程包含线程吗？'
-#     if data:
-#         answer, node= question_solve.Solve().query(data)
-#         # print(answer)
-#         # s = '包含'
-#         # for data in answer:
-#         #     s = s+str(data)+'，'
-#     else:
-#         answer = "Sorry, I can't understand what you say."
-#
-#     print(answer)
-#     print(node)
-#     return Response(dumps({"answer": answer, 'node' : node}),
-#                     mimetype="application/json")
-
 
 @app.route( apiPrefix + '/whole')
 def get_whole():
@@ -203,7 +182,7 @@ def get_address():
     return send_from_directory('./src','records_address.json')
 
 
-#word文档导出
+#word文档导出-本周警情综述第一段
 @app.route( apiPrefix + '/get_count_events', methods=['POST'])
 @cross_origin()
 def get_count_events():
@@ -212,11 +191,17 @@ def get_count_events():
     params = json.loads(data)
     print('获取数据:', params)
     # return params
+    time = {
+        'start_time': params['start_time'],
+        'end_time': params['end_time']
+    }
+    # print('时间：', time)
     try:
         # TODO : 根据params 完成查询函数 返回节点和边数据 参考 graph.py search_graph return nodes links
         db = GraphDB(url, username, password)
         # links, nodes = db.get_search_event_number(params)
         res = db.get_count_events(params)
+        res.append(time)
         # print(res)
         db.close()
         # return Response(dumps({"nodes": nodes, "links": links}),
@@ -224,6 +209,25 @@ def get_count_events():
         return Response(dumps(res), mimetype="application/json")
     except json.JSONDecodeError:
         return jsonify({"error": "无效的 JSON 数据"}), 400
+
+#word文档导出-重复警情治理
+@app.route( apiPrefix + '/get_repeated_count_events', methods=['POST'])
+@cross_origin()
+def get_repeated_count_events():
+    data = request.get_data(as_text=True)
+    # 查询参数
+    params = json.loads(data)
+    print('获取数据:', params)
+    # return params
+    try:
+        # TODO : 根据params 完成查询函数 返回节点和边数据 参考 graph.py search_graph return nodes links
+        db = GraphDB(url, username, password)
+        res = db.get_repeated_count_events(params)
+        db.close()
+        return Response(dumps(res), mimetype="application/json")
+    except json.JSONDecodeError:
+        return jsonify({"error": "无效的 JSON 数据"}), 400
+
 
 
 # 本周警情综述
@@ -309,6 +313,7 @@ def get_schedule_all_time():
         return jsonify({"error": "无效的 JSON 数据"}), 400
 
 
+
 @app.route( apiPrefix + '/get_all_time', methods=['POST'])
 @cross_origin()
 def get_all_time():
@@ -391,34 +396,6 @@ def get_nodeid():
     return Response(dumps({"node": res[0]}),
                     mimetype="application/json")
 
-
-
-# @app.route( apiPrefix + '/node1', methods=['POST'])
-# def get_node1():
-#     # 获取请求数据，并将其转换为文本格式
-#     data = request.get_data(as_text=True)
-#     print('接收到的数据：', data)
-#     # 解析 JSON 数据
-#     try:
-#         node_data = json.loads(data)
-#     except json.JSONDecodeError:
-#         return jsonify({"error": "无效的 JSON 数据"}), 400
-#     # 获取 JSON 数据中的 ID 并转换为整数
-#     id = node_data.get('id', None)
-#     if id is None:
-#         return jsonify({"error": "JSON 数据中未找到 ID"}), 400
-#     # 模拟数据库操作，这里使用列表存储节点信息
-#     nodes = [
-#         {"id": 1, "name": "节点 1"},
-#         {"id": 2, "name": "节点 2"},
-#         {"id": 3, "name": "节点 3"},
-#     ]
-#     # 查找节点信息
-#     node = next((n for n in nodes if n['id'] == int(id)), None)
-#     if node:
-#         return jsonify({"node": node})
-#     else:
-#         return jsonify({"error": "未找到节点"}), 404
 
 
 if __name__ == '__main__':
