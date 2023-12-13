@@ -594,7 +594,7 @@ class Export extends React.Component {
               '当把饼图label的类型设置为spider时\uFF0C标签分为两组\uFF0C在图表两侧拉线对齐显示\u3002一般来说\uFF0C蜘蛛布局的label更不容易相互遮挡\u3002',
           },
            radius: 0.8,
-           height: 430,
+           height: 440,
            width: 720,
            data,
            angleField: 'value',
@@ -686,7 +686,7 @@ class Export extends React.Component {
         const data = this.state.weeks_data;
         const config = {
           data,
-          height: 430,
+          height: 440,
           width: 720,
           isGroup: true,
           xField: 'value',
