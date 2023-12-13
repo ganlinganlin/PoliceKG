@@ -299,7 +299,7 @@ class GraphDB:
 
 
 
-    #word文档导出
+    #word文档导出-本周警情综述第一段
     def get_count_events(self,data):
         start_time = data['start_time']
         end_time = data['end_time']
@@ -390,16 +390,118 @@ class GraphDB:
                 if tongbi_rate >= 0:
                     tongbi = {
                         keys_list[i]+'tongbi_change': '上升',
-                        keys_list[i] + 'huanbi_rate': "{:.2f}%".format(abs(tongbi_rate)),
+                        keys_list[i] + 'tongbi_rate': "{:.2f}%".format(abs(tongbi_rate)),
                     }
                 else:
                     tongbi = {
                         keys_list[i]+'tongbi_change': '下降',
-                        keys_list[i] + 'huanbi_rate': "{:.2f}%".format(abs(tongbi_rate)),
+                        keys_list[i] + 'tongbi_rate': "{:.2f}%".format(abs(tongbi_rate)),
                     }
             obj.update(tongbi)
+            # obj.update(time)
             res.append(obj)
+            # print(res)
         return res
+
+
+    #word文档导出-重复警情治理第一段
+    def get_repeated_count_events(self,data):
+        start_time = data['start_time']
+        end_time = data['end_time']
+        one_week_ago_start_time = get_one_week_ago(data['start_time'])
+        one_week_ago_end_time = get_one_week_ago(data['end_time'])
+        one_year_ago_start_time = get_one_year_ago(data['start_time'])
+        one_year_ago_end_time = get_one_year_ago(data['end_time'])
+
+        res = []
+
+        query_str = "MATCH data = (p:PRU)-[r1:`事件负责单位`]->(e)-[r2:`事件时间`]->(t:TIME) WHERE '%s' <= t.time <= '%s' WITH  p.first_unit AS first_unit, p.name AS name, e.phone AS phone, count(*) AS numbers WHERE numbers >=2 RETURN first_unit, name, count(*) AS events ORDER BY events DESC;" %(start_time, end_time)
+        one_week_ago_query_str = "MATCH data = (p:PRU)-[r1:`事件负责单位`]->(e)-[r2:`事件时间`]->(t:TIME) WHERE '%s' <= t.time <= '%s' WITH  p.first_unit AS first_unit, p.name AS name, e.phone AS phone, count(*) AS numbers WHERE numbers >=2 RETURN first_unit, name, count(*) AS events ORDER BY events DESC;" % (one_week_ago_start_time, one_week_ago_end_time)
+        one_year_ago_query_str = "MATCH data = (p:PRU)-[r1:`事件负责单位`]->(e)-[r2:`事件时间`]->(t:TIME) WHERE '%s' <= t.time <= '%s' WITH  p.first_unit AS first_unit, p.name AS name, e.phone AS phone, count(*) AS numbers WHERE numbers >=2 RETURN first_unit, name, count(*) AS events ORDER BY events DESC;" % (one_year_ago_start_time, one_year_ago_end_time)
+
+        # print(query_str)
+        with self.driver.session() as session:
+            result = session.read_transaction(lambda tx: list(tx.run(query_str)))
+            one_week_ago_result = session.read_transaction(lambda tx: list(tx.run(one_week_ago_query_str)))
+            one_year_ago_result = session.read_transaction(lambda tx: list(tx.run(one_year_ago_query_str)))
+        print(one_year_ago_result)
+        if not result:
+            obj = {
+                "key": item[1],
+                'value': item[2],
+                'type': '重复警情',
+            }
+            res.append(obj)
+        else:
+            for item in result:
+                obj = {
+                    "key": item[1],
+                    'value':item[2],
+                    'type': '重复警情',
+                }
+                res.append(obj)
+        # for item in one_week_ago_result:
+        #     if item[2]:
+        #         obj1 = {
+        #             'value1': item[2],
+        #         }
+        #     else :
+        #         obj1 = {
+        #             'value1': 0,
+        #         }
+        #     obj.update(obj1)
+        #     res.append(obj)
+        for item in one_year_ago_result:
+            print(item)
+            if not item:
+                obj2 = {
+                    'value2': 0,
+                }
+            else:
+                obj2 = {
+                    'value2': item[2],
+                }
+            print(obj2)
+            obj.update(obj2)
+            res.append(obj)
+        # for item in result:
+        #     huanbi_rate = calculate_yoy_growth_rate(item[2], obj["value1"])
+        #     if huanbi_rate == float('inf'):
+        #         huanbi = {
+        #             'type': '环比',
+        #             'value': 0
+        #         }
+        #     else:
+        #         huanbi = {
+        #             'type': '环比',
+        #             'value': huanbi_rate
+        #         }
+        #     obj.update(huanbi)
+
+
+        # tongbi_rate = calculate_yoy_growth_rate(obj["value"], obj["value2"])
+        # if tongbi_rate == float('inf'):
+        #     tongbi = {
+        #         'type': '同比',
+        #         'value': 0
+        #     }
+        # else:
+        #     tongbi = {
+        #         'type': '同比',
+        #         'value': tongbi_rate
+        #     }
+
+
+        # for item in result:
+        #     # print(item)
+        #     obj5 = {
+        #         "key": item[1],
+        #         'value':item[2],
+        #         'type': '重复警情',
+        #     }
+        #     res.append(obj5)
+        return res
+
 
     # 本周警情综述
     def get_count_events_figure(self,data):

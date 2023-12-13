@@ -29,7 +29,10 @@
     "docxtemplater": "^3.42.1",
     "echarts": "^5.4.3",
     "echarts-wordcloud": "^2.1.0",
+    "file-saver": "^2.0.5",
+    "jszip-utils": "^0.1.0",
     "mammoth": "^1.6.0",
+    "pizzip": "^3.1.4",
     "react": "17.x",
     "react-dom": "17.x",
     "umi": "^3.5.34"
