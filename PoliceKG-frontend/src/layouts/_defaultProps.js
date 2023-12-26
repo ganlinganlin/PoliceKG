@@ -30,11 +30,11 @@ export default {
         name: '地点统计',
         icon: <CloudOutlined />,
       },
-      // {
-      //   path: '/statistic',
-      //   name: '数据总览',
-      //   icon: <SmileOutlined />,
-      // },
+      {
+        path: '/statistic',
+        name: '数据总览',
+        icon: <SmileOutlined />,
+      },
       {
         path: '/export',
         name: '数据导出',

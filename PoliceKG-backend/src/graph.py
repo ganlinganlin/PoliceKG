@@ -299,6 +299,7 @@ class GraphDB:
 
 
 
+
     #word文档导出-本周警情综述第一段
     def get_count_events(self,data):
         start_time = data['start_time']
@@ -402,6 +403,9 @@ class GraphDB:
             res.append(obj)
             # print(res)
         return res
+
+
+
 
 
     #word文档导出-重复警情治理第一段

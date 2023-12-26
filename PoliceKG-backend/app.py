@@ -183,10 +183,12 @@ def get_address():
 
 
 #word文档导出-本周警情综述第一段
-@app.route( apiPrefix + '/get_count_events', methods=['POST'])
+@app.route(apiPrefix + '/get_count_events', methods=['POST'])
 @cross_origin()
 def get_count_events():
     data = request.get_data(as_text=True)
+    # data = request.json
+    print(data)
     # 查询参数
     params = json.loads(data)
     print('获取数据:', params)
